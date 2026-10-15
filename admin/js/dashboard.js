@@ -1,337 +1,345 @@
-/* =========================================================
-   dashboard.js
-   Navegación entre secciones del panel + carga de datos
-   (estadísticas, stock, ventas, compras, proveedores, clientes).
-   ========================================================= */
+// admin/js/dashboard.js
 
-let seccionActual = 'dashboard';
+document.addEventListener("DOMContentLoaded", async () => {
+  const viewCatalogo = document.getElementById("view-catalogo");
+  const viewFormulario = document.getElementById("view-formulario");
+  const grid = document.getElementById("admin-products-grid");
+  const form = document.getElementById("form-producto");
 
-const TITULOS_SECCION = {
-  dashboard: 'Dashboard',
-  stock: 'Stock',
-  ventas: 'Ventas',
-  compras: 'Compras',
-  proveedores: 'Proveedores',
-  clientes: 'Clientes',
-};
+  const btnNuevo = document.getElementById("btn-nuevo-producto");
+  const btnVolver = document.getElementById("btn-volver-catalogo");
+  const btnBorrador = document.getElementById("btn-guardar-borrador");
+  const btnPublicar = document.getElementById("btn-publicar");
 
-// -----------------------------------------------------------
-// Navegación entre secciones
-// -----------------------------------------------------------
-function irASeccion(nombre) {
-  document.querySelectorAll('.admin-nav-link').forEach((link) => {
-    link.classList.toggle('active', link.dataset.section === nombre);
-  });
-  document.querySelectorAll('.admin-section').forEach((sec) => {
-    sec.classList.toggle('active', sec.dataset.section === nombre);
-  });
+  const inputSearch = document.getElementById("filter-search");
+  const globalSearch = document.getElementById("global-search");
+  const selectMarca = document.getElementById("filter-marca");
+  const selectEstado = document.getElementById("filter-estado");
+  const selectOrden = document.getElementById("filter-orden");
 
-  cerrarMenuMovil();
+  function obtenerSupabase() {
+    if (typeof supabaseClient !== "undefined") return supabaseClient;
+    if (window._supabase) return window._supabase;
+    if (typeof supabase !== "undefined" && typeof supabase.from === "function") return supabase;
+    return null;
+  }
 
-  document.getElementById('admin-titulo-seccion').textContent = TITULOS_SECCION[nombre] || '';
-  seccionActual = nombre;
+  const client = obtenerSupabase();
+  let inventario = [];
+  let paginaActual = 1;
+  const itemsPorPagina = 10;
 
-  const cargadores = {
-    dashboard: cargarDashboard,
-    stock: cargarStock,
-    ventas: cargarVentas,
-    compras: cargarCompras,
-    proveedores: cargarProveedores,
-    clientes: cargarClientes,
+  // Alternar entre vista de cuadrícula y vista de formulario
+  function cambiarVista(mostrarFormulario) {
+    if (mostrarFormulario) {
+      viewCatalogo.classList.remove("active");
+      viewFormulario.classList.add("active");
+    } else {
+      viewFormulario.classList.remove("active");
+      viewCatalogo.classList.add("active");
+      cargarInventario();
+    }
+  }
+
+  // Cargar todos los relojes desde Supabase
+  async function cargarInventario() {
+    if (!client) return;
+    grid.innerHTML = `<p style="grid-column:1/-1; text-align:center; padding:40px; color:#64748b;">Cargando inventario...</p>`;
+
+    const { data, error } = await client.from("productos").select("*");
+    if (error) {
+      console.error("Error al cargar inventario:", error);
+      grid.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:#ef4444;">Error al cargar productos.</p>`;
+      return;
+    }
+
+    inventario = data || [];
+    aplicarFiltrosYRenderizar();
+  }
+
+  function aplicarFiltrosYRenderizar() {
+    const texto = ((inputSearch?.value || "") + " " + (globalSearch?.value || "")).trim().toLowerCase();
+    const marca = selectMarca?.value || "todas";
+    const estado = selectEstado?.value || "todos";
+    const orden = selectOrden?.value || "recientes";
+
+    let filtrados = inventario.filter(p => {
+      const coincideTexto = !texto || 
+        (p.nombre || "").toLowerCase().includes(texto) ||
+        (p.modelo || "").toLowerCase().includes(texto) ||
+        (p.marca || "").toLowerCase().includes(texto);
+
+      const marcaProd = (p.marca || "CRONOS").toUpperCase();
+      const coincideMarca = marca === "todas" || marcaProd === marca.toUpperCase();
+
+      const estadoProd = p.estado || "Activo";
+      const coincideEstado = estado === "todos" || estadoProd === estado;
+
+      return coincideTexto && coincideMarca && coincideEstado;
+    });
+
+    if (orden === "precio-asc") filtrados.sort((a, b) => (a.precio || 0) - (b.precio || 0));
+    else if (orden === "precio-desc") filtrados.sort((a, b) => (b.precio || 0) - (a.precio || 0));
+    else if (orden === "nombre") filtrados.sort((a, b) => (a.nombre || "").localeCompare(b.nombre || ""));
+    else filtrados.reverse();
+
+    renderizarCuadricula(filtrados);
+  }
+
+  function renderizarCuadricula(lista) {
+    const infoPag = document.getElementById("pagination-info");
+    const controlesPag = document.getElementById("pagination-controls");
+
+    if (lista.length === 0) {
+      grid.innerHTML = `<p style="grid-column:1/-1; text-align:center; padding:40px; color:#64748b;">No se encontraron relojes con esos filtros.</p>`;
+      if (infoPag) infoPag.textContent = "Mostrando 0 productos";
+      if (controlesPag) controlesPag.innerHTML = "";
+      return;
+    }
+
+    const totalPaginas = Math.ceil(lista.length / itemsPorPagina);
+    if (paginaActual > totalPaginas) paginaActual = 1;
+
+    const inicio = (paginaActual - 1) * itemsPorPagina;
+    const paginados = lista.slice(inicio, inicio + itemsPorPagina);
+
+    if (infoPag) {
+      infoPag.textContent = `Mostrando ${inicio + 1} - ${Math.min(inicio + itemsPorPagina, lista.length)} de ${lista.length} productos`;
+    }
+
+    grid.innerHTML = paginados.map(item => {
+      const estado = item.estado || "Activo";
+      const claseEstado = estado.toLowerCase() === "inactivo" ? "inactivo" : "activo";
+      const marca = item.marca || "CRONOS";
+      const modelo = item.modelo || item.nombre || "Sin modelo";
+      const precio = Number(item.precio || 0).toLocaleString("es-BO", { minimumFractionDigits: 2 });
+      const stock = item.stock ?? 10;
+      const img = item.imagen_url || "../img/logo-cronos.png";
+      const extras = Array.isArray(item.imagenes_adicionales) ? item.imagenes_adicionales.filter(Boolean).length : 0;
+
+      return `
+        <article class="admin-prod-card">
+          <div class="card-top-Thumb">
+            <span class="status-pill ${claseEstado}">${estado}</span>
+            <img src="${img}" alt="${item.nombre}" onerror="this.src='../img/logo-cronos.png'">
+            <span class="angles-count-badge">📷 ${1 + extras} fotos</span>
+          </div>
+          <span class="card-brand">${marca}</span>
+          <h4 class="card-model-name" title="${item.nombre}">${modelo}</h4>
+          <div class="card-price-val">Bs ${precio}</div>
+          <div class="card-stock-val">Stock: ${stock}</div>
+          <div class="card-actions-row">
+            <button type="button" class="btn-card-edit" onclick="editarProducto('${item.id}')">
+              ✏️ Editar
+            </button>
+            <button type="button" class="btn-card-icon delete" onclick="eliminarProducto('${item.id}')" title="Eliminar">
+              🗑️
+            </button>
+            <button type="button" class="btn-card-icon clone" onclick="duplicarProducto('${item.id}')" title="Duplicar">
+              ❐
+            </button>
+          </div>
+        </article>
+      `;
+    }).join("");
+
+    // Botones de paginación
+    if (controlesPag) {
+      let htmlPag = "";
+      for (let i = 1; i <= totalPaginas; i++) {
+        htmlPag += `<button type="button" class="page-btn ${i === paginaActual ? 'active' : ''}" onclick="irAPagina(${i})">${i}</button>`;
+      }
+      controlesPag.innerHTML = htmlPag;
+    }
+  }
+
+  window.irAPagina = function(num) {
+    paginaActual = num;
+    aplicarFiltrosYRenderizar();
   };
-  if (cargadores[nombre]) cargadores[nombre]();
-}
 
-function formatoFecha(fechaIso) {
-  return new Date(fechaIso).toLocaleDateString('es-BO', { day: '2-digit', month: 'short', year: 'numeric' });
-}
+  // Preparar formulario vacío para nuevo reloj
+  function limpiarFormulario() {
+    form.reset();
+    document.getElementById("prod-id").value = "";
+    document.getElementById("form-main-title").textContent = "Agregar producto";
+    document.getElementById("preview-main-img").src = "../img/logo-cronos.png";
+    document.getElementById("desc-count").textContent = "0";
 
-// -----------------------------------------------------------
-// DASHBOARD
-// -----------------------------------------------------------
-async function cargarDashboard() {
-  const hoyInicio = new Date();
-  hoyInicio.setHours(0, 0, 0, 0);
-
-  const { data: ventasHoy } = await supabaseClient
-    .from('ventas')
-    .select('*')
-    .gte('creado_en', hoyInicio.toISOString())
-    .order('creado_en', { ascending: false });
-
-  const totalHoy = (ventasHoy || []).reduce((acc, v) => acc + Number(v.total), 0);
-  document.getElementById('stat-ventas-hoy').textContent = (ventasHoy || []).length;
-  document.getElementById('stat-total-hoy').textContent = `Bs ${totalHoy.toFixed(2)}`;
-
-  const { data: productos } = await supabaseClient.from('productos').select('*');
-  const stockBajo = (productos || []).filter((p) => (p.stock_actual ?? 0) <= (p.stock_minimo ?? 3));
-  document.getElementById('stat-stock-bajo').textContent = stockBajo.length;
-
-  const { count: totalClientes } = await supabaseClient
-    .from('clientes')
-    .select('*', { count: 'exact', head: true });
-  document.getElementById('stat-clientes').textContent = totalClientes ?? 0;
-
-  const { data: ultimasVentas } = await supabaseClient
-    .from('ventas')
-    .select('*, productos(nombre)')
-    .order('creado_en', { ascending: false })
-    .limit(6);
-
-  const cuerpo = document.getElementById('tabla-dashboard-ventas');
-  if (!ultimasVentas || ultimasVentas.length === 0) {
-    cuerpo.innerHTML = '<tr><td colspan="5" class="tabla-vacio">Todavía no hay ventas registradas.</td></tr>';
-    return;
+    window.estadoImagenes = {
+      principalUrl: "",
+      principalFile: null,
+      adicionales: [null, null, null, null, null]
+    };
+    window.renderizarSlotsAdicionales();
   }
 
-  cuerpo.innerHTML = ultimasVentas.map((v) => `
-    <tr>
-      <td>${formatoFecha(v.creado_en)}</td>
-      <td>${v.productos?.nombre || '—'}</td>
-      <td>${v.cantidad}</td>
-      <td>Bs ${Number(v.total).toFixed(2)}</td>
-      <td>${v.cliente_nombre || '—'}</td>
-    </tr>
-  `).join('');
-}
+  // Editar producto existente
+  window.editarProducto = function(id) {
+    const prod = inventario.find(p => String(p.id) === String(id));
+    if (!prod) return;
 
-// -----------------------------------------------------------
-// STOCK
-// -----------------------------------------------------------
-async function cargarStock() {
-  const { data: productos } = await supabaseClient.from('productos').select('*').order('nombre');
-  const cuerpo = document.getElementById('tabla-stock');
+    limpiarFormulario();
+    document.getElementById("form-main-title").textContent = "Editar producto";
+    document.getElementById("prod-id").value = prod.id;
+    document.getElementById("prod-nombre").value = prod.nombre || "";
+    document.getElementById("prod-precio").value = prod.precio || 0;
+    document.getElementById("prod-estado").value = prod.estado || "Activo";
+    document.getElementById("prod-modelo").value = prod.modelo || "";
+    document.getElementById("prod-stock").value = prod.stock ?? 10;
+    document.getElementById("prod-categoria").value = prod.categoria || "hombre";
+    document.getElementById("prod-marca").value = prod.marca || "CRONOS";
+    document.getElementById("prod-estilo").value = prod.estilo || "Clásico";
+    document.getElementById("prod-tipo-correa").value = prod.tipo_correa || "Metal";
+    document.getElementById("prod-color-correa").value = prod.color_correa || "Dorado";
+    document.getElementById("prod-esfera").value = prod.diseno_esfera || "Con números";
+    document.getElementById("prod-descripcion").value = prod.descripcion || "";
+    document.getElementById("desc-count").textContent = (prod.descripcion || "").length;
+    document.getElementById("prod-destacado").checked = Boolean(prod.destacado);
 
-  if (!productos || productos.length === 0) {
-    cuerpo.innerHTML = '<tr><td colspan="6" class="tabla-vacio">No hay relojes cargados.</td></tr>';
-    return;
+    // Cargar imagen principal y ángulos adicionales
+    window.estadoImagenes.principalUrl = prod.imagen_url || "";
+    document.getElementById("preview-main-img").src = prod.imagen_url || "../img/logo-cronos.png";
+
+    const extrasGuardadas = Array.isArray(prod.imagenes_adicionales) ? prod.imagenes_adicionales : [];
+    window.estadoImagenes.adicionales = [0, 1, 2, 3, 4].map(idx => {
+      return extrasGuardadas[idx] ? { url: extrasGuardadas[idx], file: null } : null;
+    });
+
+    window.renderizarSlotsAdicionales();
+    cambiarVista(true);
+  };
+
+  // Eliminar reloj
+  window.eliminarProducto = async function(id) {
+    if (!confirm("¿Estás seguro de que deseas eliminar este reloj del catálogo?")) return;
+    const { error } = await client.from("productos").delete().eq("id", id);
+    if (error) {
+      mostrarToast("Error al eliminar: " + error.message);
+      return;
+    }
+    mostrarToast("Producto eliminado correctamente");
+    cargarInventario();
+  };
+
+  // Duplicar reloj rápido
+  window.duplicarProducto = async function(id) {
+    const orig = inventario.find(p => String(p.id) === String(id));
+    if (!orig) return;
+
+    const copia = { ...orig };
+    delete copia.id;
+    copia.nombre = `${orig.nombre} (Copia)`;
+
+    const { error } = await client.from("productos").insert([copia]);
+    if (error) {
+      mostrarToast("Error al duplicar: " + error.message);
+      return;
+    }
+    mostrarToast("Producto duplicado");
+    cargarInventario();
+  };
+
+  // Guardar o actualizar producto
+  async function guardarProducto(forzarEstado = null) {
+    if (!client) return;
+
+    btnPublicar.disabled = true;
+    btnPublicar.textContent = "Subiendo imágenes y guardando...";
+
+    try {
+      const id = document.getElementById("prod-id").value;
+
+      // 1. Subir imagen principal si se seleccionó un archivo nuevo
+      let urlPrincipal = window.estadoImagenes.principalUrl;
+      if (window.estadoImagenes.principalFile) {
+        urlPrincipal = await window.subirArchivoStorage(window.estadoImagenes.principalFile, client);
+      }
+
+      // 2. Subir imágenes adicionales de los slots 1 al 5
+      const urlsAdicionales = [];
+      for (let i = 0; i < window.estadoImagenes.adicionales.length; i++) {
+        const slot = window.estadoImagenes.adicionales[i];
+        if (!slot) continue;
+        if (slot.file) {
+          const subida = await window.subirArchivoStorage(slot.file, client);
+          urlsAdicionales.push(subida);
+        } else if (slot.url) {
+          urlsAdicionales.push(slot.url);
+        }
+      }
+
+      const payload = {
+        nombre: document.getElementById("prod-nombre").value.trim(),
+        precio: parseFloat(document.getElementById("prod-precio").value) || 0,
+        estado: forzarEstado || document.getElementById("prod-estado").value,
+        modelo: document.getElementById("prod-modelo").value.trim(),
+        stock: parseInt(document.getElementById("prod-stock").value, 10) || 0,
+        categoria: document.getElementById("prod-categoria").value,
+        marca: document.getElementById("prod-marca").value.trim().toUpperCase(),
+        estilo: document.getElementById("prod-estilo").value,
+        tipo_correa: document.getElementById("prod-tipo-correa").value,
+        color_correa: document.getElementById("prod-color-correa").value,
+        diseno_esfera: document.getElementById("prod-esfera").value,
+        descripcion: document.getElementById("prod-descripcion").value.trim(),
+        destacado: document.getElementById("prod-destacado").checked,
+        imagen_url: urlPrincipal,
+        imagenes_adicionales: urlsAdicionales
+      };
+
+      let resultadoError = null;
+      if (id) {
+        const { error } = await client.from("productos").update(payload).eq("id", id);
+        resultadoError = error;
+      } else {
+        const { error } = await client.from("productos").insert([payload]);
+        resultadoError = error;
+      }
+
+      if (resultadoError) throw resultadoError;
+
+      mostrarToast(id ? "¡Reloj actualizado con éxito!" : "¡Reloj publicado con éxito!");
+      cambiarVista(false);
+
+    } catch (err) {
+      console.error("Error guardando producto:", err);
+      mostrarToast("Error: " + err.message);
+    } finally {
+      btnPublicar.disabled = false;
+      btnPublicar.textContent = "Publicar producto";
+    }
   }
 
-  cuerpo.innerHTML = productos.map((p) => {
-    const bajo = (p.stock_actual ?? 0) <= (p.stock_minimo ?? 3);
-    return `
-      <tr>
-        <td>${p.nombre}</td>
-        <td>${p.categoria}</td>
-        <td>Bs ${p.precio}</td>
-        <td>
-          <div class="stock-stepper">
-            <button type="button" onclick="ajustarStock('${p.id}', -1)">−</button>
-            <span id="stock-valor-${p.id}" class="${bajo ? 'badge-stock-bajo' : ''}">${p.stock_actual ?? 0}</span>
-            <button type="button" onclick="ajustarStock('${p.id}', 1)">+</button>
-          </div>
-        </td>
-        <td>${p.stock_minimo ?? 3}</td>
-        <td>
-          <div class="fila-acciones">
-            <button class="btn-editar" onclick="abrirModalEditarProducto('${p.id}')">Editar</button>
-            <button class="btn-eliminar" onclick="eliminarProducto('${p.id}')">🗑 Eliminar</button>
-          </div>
-        </td>
-      </tr>
-    `;
-  }).join('');
-}
-
-async function ajustarStock(idProducto, delta) {
-  const { data: producto } = await supabaseClient
-    .from('productos')
-    .select('stock_actual, stock_minimo')
-    .eq('id', idProducto)
-    .single();
-
-  if (!producto) return;
-
-  const nuevoValor = Math.max(0, (producto.stock_actual ?? 0) + delta);
-
-  const { error } = await supabaseClient
-    .from('productos')
-    .update({ stock_actual: nuevoValor })
-    .eq('id', idProducto);
-
-  if (error) {
-    alert('Error al actualizar el stock: ' + error.message);
-    return;
+  // Eventos de botones
+  if (btnNuevo) {
+    btnNuevo.addEventListener("click", () => {
+      limpiarFormulario();
+      cambiarVista(true);
+    });
   }
 
-  const span = document.getElementById(`stock-valor-${idProducto}`);
-  if (span) {
-    span.textContent = nuevoValor;
-    span.classList.toggle('badge-stock-bajo', nuevoValor <= (producto.stock_minimo ?? 3));
+  if (btnVolver) {
+    btnVolver.addEventListener("click", () => cambiarVista(false));
   }
 
-  if (seccionActual === 'dashboard') cargarDashboard();
-}
-
-// -----------------------------------------------------------
-// VENTAS
-// -----------------------------------------------------------
-async function cargarVentas() {
-  const { data: ventas } = await supabaseClient
-    .from('ventas')
-    .select('*, productos(nombre)')
-    .order('creado_en', { ascending: false });
-
-  const cuerpo = document.getElementById('tabla-ventas');
-
-  if (!ventas || ventas.length === 0) {
-    cuerpo.innerHTML = '<tr><td colspan="8" class="tabla-vacio">Todavía no registraste ninguna venta.</td></tr>';
-    return;
-  }
-
-  cuerpo.innerHTML = ventas.map((v) => `
-    <tr>
-      <td>${formatoFecha(v.creado_en)}</td>
-      <td>${v.productos?.nombre || '—'}</td>
-      <td>${v.cantidad}</td>
-      <td>Bs ${Number(v.precio_unitario).toFixed(2)}</td>
-      <td>Bs ${Number(v.total).toFixed(2)}</td>
-      <td>${v.cliente_nombre || '—'}</td>
-      <td>${v.metodo_pago}</td>
-      <td>
-        <div class="fila-acciones">
-          <button class="btn-editar" onclick="abrirModalEditarVenta('${v.id}')">Editar</button>
-          <button class="btn-eliminar" onclick="eliminarVenta('${v.id}')">🗑 Eliminar</button>
-        </div>
-      </td>
-    </tr>
-  `).join('');
-}
-
-// -----------------------------------------------------------
-// COMPRAS
-// -----------------------------------------------------------
-async function cargarCompras() {
-  const { data: compras } = await supabaseClient
-    .from('compras')
-    .select('*, productos(nombre), proveedores(nombre)')
-    .order('fecha_compra', { ascending: false });
-
-  const cuerpo = document.getElementById('tabla-compras');
-
-  if (!compras || compras.length === 0) {
-    cuerpo.innerHTML = '<tr><td colspan="7" class="tabla-vacio">Todavía no registraste ninguna compra.</td></tr>';
-    return;
-  }
-
-  cuerpo.innerHTML = compras.map((c) => `
-    <tr>
-      <td>${formatoFecha(c.fecha_compra)}</td>
-      <td>${c.proveedores?.nombre || '—'}</td>
-      <td>${c.productos?.nombre || '—'}</td>
-      <td>${c.cantidad}</td>
-      <td>Bs ${Number(c.precio_unitario).toFixed(2)}</td>
-      <td>${c.numero_factura || '—'}</td>
-      <td>
-        <div class="fila-acciones">
-          <button class="btn-editar" onclick="abrirModalEditarCompra('${c.id}')">Editar</button>
-          <button class="btn-eliminar" onclick="eliminarCompra('${c.id}')">🗑 Eliminar</button>
-        </div>
-      </td>
-    </tr>
-  `).join('');
-}
-
-// -----------------------------------------------------------
-// PROVEEDORES
-// -----------------------------------------------------------
-async function cargarProveedores() {
-  const { data: proveedores } = await supabaseClient
-    .from('proveedores')
-    .select('*')
-    .order('nombre');
-
-  const cuerpo = document.getElementById('tabla-proveedores');
-
-  if (!proveedores || proveedores.length === 0) {
-    cuerpo.innerHTML = '<tr><td colspan="6" class="tabla-vacio">Todavía no cargaste ningún proveedor.</td></tr>';
-    return;
-  }
-
-  cuerpo.innerHTML = proveedores.map((p) => `
-    <tr>
-      <td>${p.nombre}</td>
-      <td>${p.contacto || '—'}</td>
-      <td>${p.telefono || '—'}</td>
-      <td>${p.correo || '—'}</td>
-      <td><span class="badge-estado ${p.estado}">${p.estado}</span></td>
-      <td>
-        <div class="fila-acciones">
-          <button class="btn-editar" onclick="abrirModalEditarProveedor('${p.id}')">Editar</button>
-          <button class="tabla-accion-btn" onclick="alternarEstadoProveedor('${p.id}', '${p.estado}')">
-            ${p.estado === 'activo' ? 'Desactivar' : 'Activar'}
-          </button>
-          <button class="btn-eliminar" onclick="eliminarProveedor('${p.id}')">🗑 Eliminar</button>
-        </div>
-      </td>
-    </tr>
-  `).join('');
-}
-
-async function alternarEstadoProveedor(id, estadoActual) {
-  const nuevoEstado = estadoActual === 'activo' ? 'inactivo' : 'activo';
-  await supabaseClient.from('proveedores').update({ estado: nuevoEstado }).eq('id', id);
-  cargarProveedores();
-}
-
-// -----------------------------------------------------------
-// CLIENTES
-// -----------------------------------------------------------
-async function cargarClientes() {
-  const { data: clientes } = await supabaseClient
-    .from('clientes')
-    .select('*')
-    .order('creado_en', { ascending: false });
-
-  const cuerpo = document.getElementById('tabla-clientes');
-
-  if (!clientes || clientes.length === 0) {
-    cuerpo.innerHTML = '<tr><td colspan="4" class="tabla-vacio">Todavía no hay clientes registrados en el sitio.</td></tr>';
-    return;
-  }
-
-  cuerpo.innerHTML = clientes.map((c) => `
-    <tr>
-      <td>${c.nombre || '—'}</td>
-      <td>${c.email || '—'}</td>
-      <td>${c.telefono || '—'}</td>
-      <td>${formatoFecha(c.creado_en)}</td>
-    </tr>
-  `).join('');
-}
-
-// -----------------------------------------------------------
-// Menú lateral en celular (se abre con el botón hamburguesa)
-// -----------------------------------------------------------
-function abrirMenuMovil() {
-  document.getElementById('admin-sidebar').classList.add('abierto');
-  document.getElementById('admin-sidebar-overlay').classList.add('abierto');
-}
-
-function cerrarMenuMovil() {
-  document.getElementById('admin-sidebar')?.classList.remove('abierto');
-  document.getElementById('admin-sidebar-overlay')?.classList.remove('abierto');
-}
-
-// -----------------------------------------------------------
-// Inicialización (protegida por login de admin)
-// -----------------------------------------------------------
-document.addEventListener('DOMContentLoaded', async () => {
-  const sesion = await protegerPaginaAdmin();
-  if (!sesion) return;
-
-  document.getElementById('admin-nombre').textContent = `Hola, ${sesion.adminNombre || sesion.user.email}`;
-  document.getElementById('btn-logout').addEventListener('click', cerrarSesionAdmin);
-
-  document.getElementById('admin-menu-toggle')?.addEventListener('click', abrirMenuMovil);
-  document.getElementById('admin-sidebar-overlay')?.addEventListener('click', cerrarMenuMovil);
-
-  document.querySelectorAll('.admin-nav-link').forEach((link) => {
-    link.addEventListener('click', (e) => {
+  if (form) {
+    form.addEventListener("submit", (e) => {
       e.preventDefault();
-      irASeccion(link.dataset.section);
+      guardarProducto();
+    });
+  }
+
+  if (btnBorrador) {
+    btnBorrador.addEventListener("click", () => guardarProducto("Inactivo"));
+  }
+
+  [inputSearch, globalSearch, selectMarca, selectEstado, selectOrden].forEach(el => {
+    if (el) el.addEventListener("input", () => {
+      paginaActual = 1;
+      aplicarFiltrosYRenderizar();
     });
   });
 
-  cargarDashboard();
+  // Inicializar carga
+  cargarInventario();
 });

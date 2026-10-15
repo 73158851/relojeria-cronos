@@ -1,11 +1,18 @@
 /* =========================================================
-   chat-ia.js
-   1) Cuestionario guiado (CRONOAI) de 6 preguntas con botones
-   2) Sistema de puntaje que arma un ranking de coincidencia
-   3) Muestra los mejores relojes con botón de detalle y WhatsApp
-   4) Chat libre con Gemini (vía Edge Function)
+   chat-ia.js - CRONOAI con Cuestionario de 6 preguntas y Gemini
    ========================================================= */
 
+// =========================================================
+// ESPACIO PARA CONFIGURACIÓN DE LA API KEY O LLAMADA
+// =========================================================
+// La conexión con la IA se realiza a través de la Edge Function de Supabase ('chat-ia').
+// Asegúrate de tener configurada tu GEMINI_API_KEY en los Secrets de tu proyecto en Supabase.
+// Si necesitas pasar una clave de forma directa por código, puedes definirla aquí:
+window.CUSTOM_GEMINI_API_KEY = ""; 
+
+// -----------------------------------------------------------
+// Banco de preguntas de la pasarela (6 preguntas)
+// -----------------------------------------------------------
 const PREGUNTAS_CRONOAI = [
   {
     id: 'genero',
@@ -88,8 +95,12 @@ function obtenerClienteSupabase() {
   return null;
 }
 
+// -----------------------------------------------------------
+// UI: pintar mensajes y opciones
+// -----------------------------------------------------------
 function pintarMensaje(texto, esUsuario = false) {
   const contenedor = document.getElementById('chat-messages');
+  if (!contenedor) return;
   const burbuja = document.createElement('div');
   burbuja.className = esUsuario ? 'msg msg-user' : 'msg msg-bot';
   burbuja.style.whiteSpace = 'pre-line';
@@ -107,6 +118,7 @@ function mostrarEscribiendo() {
 
 function pintarOpciones(opciones, onElegir) {
   const contenedor = document.getElementById('chat-messages');
+  if (!contenedor) return;
   const fila = document.createElement('div');
   fila.className = 'chat-options';
 
@@ -127,6 +139,9 @@ function pintarOpciones(opciones, onElegir) {
   contenedor.scrollTop = contenedor.scrollHeight;
 }
 
+// -----------------------------------------------------------
+// Flujo del cuestionario guiado
+// -----------------------------------------------------------
 function hacerPregunta(indice) {
   if (indice >= PREGUNTAS_CRONOAI.length) {
     mostrarResultados();
@@ -148,6 +163,9 @@ function hacerPregunta(indice) {
   });
 }
 
+// -----------------------------------------------------------
+// Sistema de puntaje y recomendación de relojes
+// -----------------------------------------------------------
 function calcularCoincidencia(producto, respuestas) {
   let puntos = 0;
 
@@ -205,7 +223,7 @@ async function mostrarResultados() {
   }
 
   pintarResultados(puntuados);
-  pintarMensaje('¿Tenés alguna otra consulta sobre estos modelos? Podés seguir escribiéndome aquí abajo.', false);
+  pintarMensaje('¿Tenés alguna otra duda o consulta sobre estas piezas? Podés seguir escribiéndome aquí abajo.', false);
 
   promptSistema = await construirPromptSistema(puntuados);
   habilitarChatLibre();
@@ -213,48 +231,31 @@ async function mostrarResultados() {
 
 function pintarResultados(puntuados) {
   const contenedor = document.getElementById('chat-messages');
+  if (!contenedor) return;
   const bloque = document.createElement('div');
   bloque.className = 'chat-resultados';
 
   bloque.innerHTML = puntuados.map(({ producto, score }) => {
-    const glbUrl = producto.modelo_3d_url || producto.modelo_glb_url || producto.modelo_3d || producto.archivo_3d;
-    const imgUrl = producto.imagen_url || producto.imagen || producto.foto || "img/logo-cronos.png";
-    const precioFormateado = Number(producto.precio || 0).toLocaleString("es-BO", { minimumFractionDigits: 2 });
-    
-    // Enlace limpio usando el generador centralizado
-    let linkWhatsApp = "";
-    if (typeof window.generarLinkWhatsApp === "function") {
-      linkWhatsApp = window.generarLinkWhatsApp(producto);
-    } else {
-      const telefono = window.WHATSAPP_PHONE || "59173158851";
-      const texto = `¡Hola Relojería Cronos! Me interesa el modelo recomendado por el Asesor IA:\n\n• Pieza: ${producto.nombre}\n• Precio: Bs. ${precioFormateado}\n\n¿Tienen disponibilidad?`;
-      linkWhatsApp = `https://wa.me/${telefono}?text=${encodeURIComponent(texto)}`;
-    }
+    const imgUrl = producto.imagen_url || "img/logo-cronos.png";
+    const precioFormateado = Number(producto.precio || 0).toFixed(2);
+    const tel = window.WHATSAPP_PHONE || "59173158851";
+    const texto = "¡Hola Relojería Cronos! Me interesa el modelo recomendado por CRONOAI:\n\n" +
+                  "• Pieza: " + producto.nombre + "\n" +
+                  "• Precio: Bs " + precioFormateado + "\n\n" +
+                  "¿Tienen disponibilidad?";
+    const linkWhatsApp = "https://wa.me/" + tel + "?text=" + encodeURIComponent(texto);
 
     return `
       <div class="chat-resultado-card">
         <div class="chat-resultado-media">
-          ${glbUrl ? `
-            <model-viewer
-              src="${glbUrl}"
-              poster="${imgUrl}"
-              camera-controls
-              auto-rotate
-              disable-zoom
-              interaction-prompt="none"
-              style="width: 100%; height: 100%; background: transparent;"
-              loading="lazy">
-            </model-viewer>
-          ` : `
-            <img src="${imgUrl}" alt="${producto.nombre}" />
-          `}
+          <img src="${imgUrl}" alt="${producto.nombre}" onerror="this.src='img/logo-cronos.png'" />
         </div>
         <div class="chat-resultado-info">
           <span class="chat-resultado-match">${score > 0 ? score + '% Coincidencia' : 'Recomendado'}</span>
           <h4>${producto.nombre}</h4>
-          <div class="chat-resultado-precio">Bs. ${precioFormateado}</div>
+          <div class="chat-resultado-precio">Bs ${precioFormateado}</div>
           <div class="chat-resultado-acciones">
-            <a href="producto.html?id=${producto.id}" class="btn-detalle" style="padding: 7px 12px; font-size: 12px; text-decoration: none; background: #111; color: #fff; border-radius: 4px; text-align: center; font-weight: 600;">Ver en 360°</a>
+            <a href="producto.html?id=${producto.id}" class="btn-detalle" style="padding: 7px 12px; font-size: 12px; text-decoration: none; background: #111; color: #fff; border-radius: 4px; text-align: center; font-weight: 600;">Ver Galería</a>
             <a href="${linkWhatsApp}" target="_blank" class="btn-whatsapp" style="padding: 7px 12px; font-size: 12px; text-decoration: none; background: #25D366; color: #fff; border-radius: 4px; text-align: center; font-weight: 600;">WhatsApp</a>
           </div>
         </div>
@@ -266,6 +267,9 @@ function pintarResultados(puntuados) {
   contenedor.scrollTop = contenedor.scrollHeight;
 }
 
+// -----------------------------------------------------------
+// Conexión con el Agente de IA (Gemini vía Supabase Edge Function)
+// -----------------------------------------------------------
 async function construirPromptSistema(puntuados) {
   let productos = [];
   if (typeof window.obtenerProductos === 'function') {
@@ -286,7 +290,7 @@ async function construirPromptSistema(puntuados) {
     .map(({ producto, score }) => `- ${producto.nombre} (Bs ${producto.precio}, ${score}% de coincidencia)`)
     .join('\n');
 
-  return `Sos el asesor virtual de Cronos, una relojería exclusiva en Bolivia que vende relojes y atiende por WhatsApp.
+  return `Sos el asesor virtual CRONOAI de Cronos, una relojería exclusiva en Bolivia que vende relojes y atiende por WhatsApp.
 
 El cliente ya respondió un cuestionario de preferencias:
 ${JSON.stringify(respuestasUsuario)}
@@ -314,8 +318,15 @@ async function preguntarAGemini(mensajeUsuario) {
     throw new Error('No se pudo establecer conexión con el servidor.');
   }
 
+  // Preparamos el cuerpo de la petición incluyendo la API Key personalizada si se rellenó arriba
+  const bodyPayload = { 
+    promptSistema, 
+    historial: historialChat,
+    apiKey: window.CUSTOM_GEMINI_API_KEY || undefined
+  };
+
   const { data, error } = await client.functions.invoke('chat-ia', {
-    body: { promptSistema, historial: historialChat },
+    body: bodyPayload,
   });
 
   if (error) {
@@ -339,9 +350,9 @@ async function enviarMensajeLibre(texto) {
 
   const input = document.querySelector('.chat-input input');
   const boton = document.querySelector('.chat-send');
-  input.value = '';
-  input.disabled = true;
-  boton.disabled = true;
+  if (input) input.value = '';
+  if (input) input.disabled = true;
+  if (boton) boton.disabled = true;
 
   try {
     const respuesta = await preguntarAGemini(texto);
@@ -351,21 +362,24 @@ async function enviarMensajeLibre(texto) {
     indicador.remove();
     pintarMensaje(error.message, false);
   } finally {
-    input.disabled = false;
-    boton.disabled = false;
-    input.focus();
+    if (input) input.disabled = false;
+    if (boton) boton.disabled = false;
+    if (input) input.focus();
   }
 }
 
 function habilitarChatLibre() {
   const input = document.querySelector('.chat-input input');
   const boton = document.querySelector('.chat-send');
-  input.disabled = false;
-  boton.disabled = false;
-  input.placeholder = 'Escribe tu consulta aquí...';
-  input.focus();
+  if (input) input.disabled = false;
+  if (boton) boton.disabled = false;
+  if (input) input.placeholder = 'Escribe tu consulta aquí...';
+  if (input) input.focus();
 }
 
+// -----------------------------------------------------------
+// Inicialización del Chat IA
+// -----------------------------------------------------------
 function iniciarChat() {
   const form = document.getElementById('chat-form');
   if (!form) return;
@@ -373,7 +387,7 @@ function iniciarChat() {
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     const input = form.querySelector('input');
-    enviarMensajeLibre(input.value);
+    if (input) enviarMensajeLibre(input.value);
   });
 
   hacerPregunta(0);

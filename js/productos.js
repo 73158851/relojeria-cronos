@@ -1,42 +1,37 @@
 // js/productos.js
 
-// 1. Función global para que chat-ia.js y otros módulos obtengan los relojes
 window.obtenerProductos = async function() {
   let client = null;
   if (typeof supabaseClient !== "undefined") client = supabaseClient;
   else if (window._supabase) client = window._supabase;
   else if (typeof supabase !== "undefined" && typeof supabase.from === "function") client = supabase;
-  else if (window.SUPABASE_URL && window.SUPABASE_ANON_KEY) {
-    const create = window.supabase?.createClient || createClient;
-    client = create(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
-  }
 
-  if (!client) {
-    console.error("Cliente Supabase no disponible.");
-    return [];
-  }
+  if (!client) return [];
 
   try {
     const { data, error } = await client.from("productos").select("*");
     if (error) throw error;
-    return data || [];
+    // Filtramos para que en la tienda pública solo se vean los productos Activos
+    return (data || []).filter(p => (p.estado || "Activo") !== "Inactivo");
   } catch (err) {
     console.error("Error al obtener productos:", err);
     return [];
   }
 };
 
-// 2. Renderizado del DOM para index.html y catalogo.html
 document.addEventListener("DOMContentLoaded", async () => {
   const grid = document.getElementById("product-grid");
   if (!grid) return;
 
   const esInicio = grid.getAttribute("data-destacados") === "true";
-  let todosLosProductos = await window.obtenerProductos();
+  const todosLosProductos = await window.obtenerProductos();
 
-  // Vista Hero Banner para el inicio (en Bolivianos)
+  // 1. Renderizado Hero Banners para index.html
   function renderDestacadosHero(lista) {
-    const destacados = lista.slice(0, 3);
+    // Prioriza los marcados con el check "Destacar producto", o toma los 3 primeros
+    let destacados = lista.filter(p => p.destacado === true);
+    if (destacados.length === 0) destacados = lista.slice(0, 3);
+    else destacados = destacados.slice(0, 4);
 
     if (destacados.length === 0) {
       grid.innerHTML = `<p style="text-align: center; color: #888; padding: 40px 0;">No hay piezas destacadas disponibles.</p>`;
@@ -44,27 +39,27 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     grid.innerHTML = destacados.map(item => {
-      const nombre = item.nombre || item.titulo || "Reloj Cronos";
-      const precio = item.precio || 0;
-      const categoria = item.categoria || item.genero || "Edición Exclusiva";
-      const descripcion = item.descripcion || "Mecanismo de alta precisión, acabados pulidos y diseño contemporáneo.";
-      const imagen = item.imagen_url || item.imagen || item.foto || item.url_imagen || "img/logo-cronos.png";
+      const nombre = item.nombre || "Reloj Cronos";
+      const marca = item.marca || item.categoria || "Edición Exclusiva";
+      const precio = Number(item.precio || 0).toFixed(2);
+      const descripcion = item.descripcion || "Diseño clásico y elegante con acabados de alta precisión.";
+      const imagen = item.imagen_url || "img/logo-cronos.png";
 
       return `
         <article class="product-hero-banner" style="background-image: url('${imagen}');">
           <div class="product-hero-overlay"></div>
           <div class="product-hero-inner">
-            <span class="product-hero-category">${categoria.toUpperCase()}</span>
+            <span class="product-hero-category">${marca.toUpperCase()}</span>
             <h3 class="product-hero-title">${nombre}</h3>
             <p class="product-hero-desc">${descripcion}</p>
             
             <div class="product-hero-cta">
               <div class="product-hero-price">
                 <span class="price-currency">Bs</span>
-                <span class="price-val">${Number(precio).toLocaleString("es-BO", { minimumFractionDigits: 2 })}</span>
+                <span class="price-val">${precio}</span>
               </div>
               <a href="producto.html?id=${item.id}" class="btn-hero-order">
-                <span>Ver en 3D / 360°</span>
+                <span>Ver Galería y Detalles</span>
               </a>
             </div>
           </div>
@@ -73,7 +68,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }).join("");
   }
 
-  // Vista cuadrícula para catálogo (en Bolivianos)
+  // 2. Renderizado en cuadrícula para catalogo.html
   function renderCatalogoGrid(lista) {
     if (!lista || lista.length === 0) {
       grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px 0;">No se encontraron relojes en esta categoría.</p>`;
@@ -81,23 +76,24 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     grid.innerHTML = lista.map(item => {
-      const nombre = item.nombre || item.titulo || "Reloj Cronos";
-      const precio = item.precio || 0;
-      const categoria = item.categoria || item.genero || "Colección";
-      const imagen = item.imagen_url || item.imagen || item.foto || item.url_imagen || "img/logo-cronos.png";
+      const nombre = item.nombre || "Reloj Cronos";
+      const marca = item.marca || item.categoria || "CRONOS";
+      const precio = Number(item.precio || 0).toFixed(2);
+      const imagen = item.imagen_url || "img/logo-cronos.png";
+      const cantFotos = 1 + (Array.isArray(item.imagenes_adicionales) ? item.imagenes_adicionales.filter(Boolean).length : 0);
 
       return `
         <article class="product-card">
-          <div class="card-badge">360° Disponible</div>
+          <div class="card-badge">📷 ${cantFotos} vistas</div>
           <a href="producto.html?id=${item.id}" class="product-card-media">
             <img src="${imagen}" alt="${nombre}" loading="lazy" class="product-thumb-img" onerror="this.src='img/logo-cronos.png'" />
           </a>
           <div class="product-card-body">
-            <span class="product-category">${categoria.toUpperCase()}</span>
+            <span class="product-category">${marca.toUpperCase()}</span>
             <h3 class="product-card-title"><a href="producto.html?id=${item.id}">${nombre}</a></h3>
             <div class="product-card-footer">
-              <span class="product-price">Bs ${Number(precio).toLocaleString("es-BO", { minimumFractionDigits: 2 })}</span>
-              <a href="producto.html?id=${item.id}" class="btn-ver-detalle">Ver Detalles</a>
+              <span class="product-price">Bs ${precio}</span>
+              <a href="producto.html?id=${item.id}" class="btn-ver-detalle">Ver Galería</a>
             </div>
           </div>
         </article>
@@ -111,7 +107,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderCatalogoGrid(todosLosProductos);
   }
 
-  // Filtros del catálogo
+  // Filtros en catalogo.html
   const filterTabs = document.querySelectorAll(".filter-tab");
   if (filterTabs.length > 0) {
     filterTabs.forEach(tab => {
@@ -119,19 +115,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         filterTabs.forEach(t => t.classList.remove("active"));
         tab.classList.add("active");
         const cat = (tab.getAttribute("data-categoria") || "").toLowerCase().trim();
-        if (cat === "todos" || !cat) renderCatalogoGrid(todosLosProductos);
-        else {
-          renderCatalogoGrid(todosLosProductos.filter(p => (p.categoria || p.genero || "").toLowerCase().includes(cat)));
+        if (cat === "todos" || !cat) {
+          renderCatalogoGrid(todosLosProductos);
+        } else {
+          renderCatalogoGrid(todosLosProductos.filter(p => (p.categoria || "").toLowerCase().includes(cat)));
         }
       });
     });
   }
 });
-
-// Función global de WhatsApp requerida por chat-ia.js
-window.generarLinkWhatsApp = function(producto, mensajePersonalizado) {
-  const telefono = window.WHATSAPP_PHONE || "59173158851";
-  const nombre = producto?.nombre || producto?.titulo || "este reloj";
-  const texto = mensajePersonalizado || `Hola Cronos, me interesa el reloj ${nombre} que me recomendó el Asesor IA.`;
-  return `https://wa.me/${telefono}?text=${encodeURIComponent(texto)}`;
-};

@@ -1,22 +1,32 @@
 // js/detalle-producto.js
 
 document.addEventListener("DOMContentLoaded", async () => {
-  const viewer = document.getElementById("reloj-viewer");
-  const progressBar = document.getElementById("progress-bar");
-  const progressFill = document.getElementById("progress-fill");
-  const progressText = document.getElementById("progress-text");
-  const btnRotateToggle = document.getElementById("btn-rotate-toggle");
-  const btnFrontCam = document.getElementById("btn-front-cam");
-  const btnSideCam = document.getElementById("btn-side-cam");
+  const mainImg = document.getElementById("main-gallery-img");
+  const thumbsTrack = document.getElementById("thumbnails-track");
+  const btnPrev = document.getElementById("btn-prev-img");
+  const btnNext = document.getElementById("btn-next-img");
+  const btnZoom = document.getElementById("btn-open-zoom");
 
+  const lightboxModal = document.getElementById("lightbox-modal");
+  const lightboxImg = document.getElementById("lightbox-img");
+  const lightboxClose = document.getElementById("lightbox-close");
+
+  const breadMarca = document.getElementById("bread-marca");
+  const breadModelo = document.getElementById("bread-modelo");
+  const elMarca = document.getElementById("producto-marca");
   const elNombre = document.getElementById("producto-nombre");
-  const elPrecio = document.getElementById("producto-precio");
   const elDescripcion = document.getElementById("producto-descripcion");
-  const elCategoria = document.getElementById("producto-categoria");
-  const elMaterial = document.getElementById("producto-material");
-  const elMovimiento = document.getElementById("producto-movimiento");
-  const elResistencia = document.getElementById("producto-resistencia");
+  const elPrecio = document.getElementById("producto-precio");
+  const elPrecioAnt = document.getElementById("producto-precio-anterior");
+  const badgeStock = document.getElementById("badge-stock");
+
+  const specMarca = document.getElementById("spec-marca");
+  const specModelo = document.getElementById("spec-modelo");
+  const specStock = document.getElementById("spec-stock");
+  const specEstado = document.getElementById("spec-estado");
+
   const btnWhatsapp = document.getElementById("btn-whatsapp-comprar");
+  const btnFav = document.getElementById("btn-fav-toggle");
 
   const urlParams = new URLSearchParams(window.location.search);
   const productoId = urlParams.get("id");
@@ -30,14 +40,43 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (typeof supabaseClient !== "undefined") client = supabaseClient;
   else if (window._supabase) client = window._supabase;
   else if (typeof supabase !== "undefined" && typeof supabase.from === "function") client = supabase;
-  else if (window.SUPABASE_URL && window.SUPABASE_ANON_KEY) {
-    const create = window.supabase?.createClient || createClient;
-    client = create(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
-  }
 
   if (!client) {
     console.error("Cliente Supabase no disponible.");
     return;
+  }
+
+  let galeriaFotos = [];
+  let indiceFotoActual = 0;
+
+  function actualizarImagenActiva(index) {
+    if (galeriaFotos.length === 0) return;
+    if (index < 0) index = galeriaFotos.length - 1;
+    if (index >= galeriaFotos.length) index = 0;
+
+    indiceFotoActual = index;
+    mainImg.src = galeriaFotos[indiceFotoActual];
+
+    const todosThumbs = thumbsTrack.querySelectorAll(".thumb-item");
+    todosThumbs.forEach((t, idx) => {
+      t.classList.toggle("active", idx === indiceFotoActual);
+    });
+  }
+
+  function renderizarMiniaturas() {
+    if (!thumbsTrack) return;
+    thumbsTrack.innerHTML = galeriaFotos.map((url, idx) => `
+      <div class="thumb-item ${idx === 0 ? 'active' : ''}" data-idx="${idx}">
+        <img src="${url}" alt="Ángulo ${idx + 1}" onerror="this.src='img/logo-cronos.png'">
+      </div>
+    `).join("");
+
+    thumbsTrack.querySelectorAll(".thumb-item").forEach(item => {
+      item.addEventListener("click", () => {
+        const idx = parseInt(item.getAttribute("data-idx"), 10);
+        actualizarImagenActiva(idx);
+      });
+    });
   }
 
   try {
@@ -48,70 +87,93 @@ document.addEventListener("DOMContentLoaded", async () => {
       .single();
 
     if (error || !producto) {
-      if (elNombre) elNombre.textContent = "Reloj no disponible";
+      if (elNombre) elNombre.textContent = "Reloj no encontrado";
       return;
     }
 
-    const nombre = producto.nombre || producto.titulo || "Reloj Cronos";
-    const precio = producto.precio || producto.costo || 0;
-    const precioNum = Number(precio).toFixed(2);
-    const descripcion = producto.descripcion || producto.detalle || "Pieza de precisión artesanal.";
-    const categoria = producto.categoria || producto.tipo || "ALTA RELOJERÍA";
-    const imagen = producto.imagen_url || producto.imagen || producto.foto || producto.url_imagen || "";
-    const modelo3D = producto.modelo_3d_url || producto.modelo_glb_url || producto.modelo_3d || producto.modelo_glb || producto.archivo_3d || "";
+    const nombre = producto.nombre || "Reloj Cronos";
+    const marca = (producto.marca || "CRONOS").toUpperCase();
+    const modelo = producto.modelo || nombre;
+    const precio = Number(producto.precio || 0);
+    const precioFormateado = precio.toFixed(2);
+    const precioAnterior = (precio * 1.25).toFixed(2);
+    const stock = producto.stock ?? 10;
+    const estado = producto.estado || "Activo";
+    const descripcion = producto.descripcion || "Reloj analógico de diseño clásico y elegante, fabricado con materiales de alta resistencia y precisión garantizada.";
 
-    if (elNombre) elNombre.textContent = nombre;
-    if (elPrecio) elPrecio.textContent = precioNum;
+    // Rellenar textos y especificaciones
+    if (breadMarca) breadMarca.textContent = marca;
+    if (breadModelo) breadModelo.textContent = modelo;
+    if (elMarca) elMarca.textContent = marca;
+    if (elNombre) elNombre.textContent = modelo !== nombre ? `${nombre}` : nombre;
     if (elDescripcion) elDescripcion.textContent = descripcion;
-    if (elCategoria) elCategoria.textContent = categoria.toUpperCase();
+    if (elPrecio) elPrecio.textContent = precioFormateado;
+    if (elPrecioAnt) elPrecioAnt.textContent = "Bs " + precioAnterior;
 
-    if (elMaterial) elMaterial.textContent = producto.material || "Acero Quirúrgico / Zafiro";
-    if (elMovimiento) elMovimiento.textContent = producto.movimiento || "Automático Suizo";
-    if (elResistencia) elResistencia.textContent = producto.resistencia || "100m (10 ATM)";
+    if (specMarca) specMarca.textContent = marca;
+    if (specModelo) specModelo.textContent = modelo;
+    if (specStock) specStock.textContent = `${stock} unidades`;
+    if (specEstado) specEstado.textContent = estado === "Activo" ? "🟢 Activo" : "⚪ Inactivo";
 
-    // Asignación directa con concatenación clásica (imposible que falle)
+    if (badgeStock) {
+      if (stock > 0) {
+        badgeStock.textContent = "● En stock";
+        badgeStock.classList.remove("agotado");
+      } else {
+        badgeStock.textContent = "● Agotado";
+        badgeStock.classList.add("agotado");
+      }
+    }
+
+    // Construir arreglo de fotos (Principal + Adicionales)
+    const principal = producto.imagen_url || "img/logo-cronos.png";
+    const adicionales = Array.isArray(producto.imagenes_adicionales) 
+      ? producto.imagenes_adicionales.filter(Boolean) 
+      : [];
+
+    galeriaFotos = [principal, ...adicionales];
+    renderizarMiniaturas();
+    actualizarImagenActiva(0);
+
+    // Enlace limpio a WhatsApp
     if (btnWhatsapp) {
       const tel = window.WHATSAPP_PHONE || "59173158851";
-      const textoFinal = "¡Hola Relojería Cronos! Estoy interesado en adquirir el siguiente modelo:\n\n" +
-                         "• Pieza: " + nombre + "\n" +
-                         "• Precio: Bs " + precioNum + "\n\n" +
+      const textoFinal = "¡Hola Relojería Cronos! Estoy interesado en adquirir el siguiente reloj:\n\n" +
+                         "• Marca: " + marca + "\n" +
+                         "• Pieza: " + nombre + " (" + modelo + ")\n" +
+                         "• Precio: Bs " + precioFormateado + "\n\n" +
                          "¿Tienen disponibilidad para coordinar la entrega?";
       btnWhatsapp.href = "https://wa.me/" + tel + "?text=" + encodeURIComponent(textoFinal);
     }
 
-    if (imagen) viewer.setAttribute("poster", imagen);
-    if (modelo3D) {
-      progressBar.classList.remove("hide");
-      viewer.setAttribute("src", modelo3D);
-    }
-
   } catch (err) {
-    console.error("Error al obtener producto:", err);
+    console.error("Error al cargar detalle del reloj:", err);
   }
 
-  viewer.addEventListener("progress", (e) => {
-    const pct = Math.round(e.detail.totalProgress * 100);
-    progressFill.style.width = pct + "%";
-    progressText.textContent = "Cargando 3D... " + pct + "%";
-  });
+  // Eventos de navegación de la galería
+  if (btnPrev) btnPrev.addEventListener("click", () => actualizarImagenActiva(indiceFotoActual - 1));
+  if (btnNext) btnNext.addEventListener("click", () => actualizarImagenActiva(indiceFotoActual + 1));
 
-  viewer.addEventListener("load", () => {
-    progressBar.classList.add("hide");
-    viewer.autoRotate = true;
-  });
+  // Eventos de Zoom / Lightbox
+  function abrirZoom() {
+    if (!lightboxModal || !lightboxImg) return;
+    lightboxImg.src = galeriaFotos[indiceFotoActual] || mainImg.src;
+    lightboxModal.classList.add("open");
+  }
 
-  btnRotateToggle.addEventListener("click", () => {
-    viewer.autoRotate = !viewer.autoRotate;
-    btnRotateToggle.classList.toggle("active", viewer.autoRotate);
-  });
+  if (btnZoom) btnZoom.addEventListener("click", abrirZoom);
+  if (mainImg) mainImg.addEventListener("click", abrirZoom);
+  if (lightboxClose) lightboxClose.addEventListener("click", () => lightboxModal.classList.remove("open"));
+  if (lightboxModal) {
+    lightboxModal.addEventListener("click", (e) => {
+      if (e.target === lightboxModal) lightboxModal.classList.remove("open");
+    });
+  }
 
-  btnFrontCam.addEventListener("click", () => {
-    viewer.cameraOrbit = "0deg 75deg 105%";
-    viewer.jumpCameraToGoal();
-  });
-
-  btnSideCam.addEventListener("click", () => {
-    viewer.cameraOrbit = "90deg 80deg 105%";
-    viewer.jumpCameraToGoal();
-  });
+  if (btnFav) {
+    btnFav.addEventListener("click", () => {
+      btnFav.classList.toggle("active");
+      btnFav.textContent = btnFav.classList.contains("active") ? "♥" : "♡";
+    });
+  }
 });

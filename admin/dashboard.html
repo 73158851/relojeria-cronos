@@ -3,357 +3,342 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel CRONOS — Dashboard</title>
-  <link rel="stylesheet" href="../css/styles.css">
+  <title>CRONOS — Panel del Vendedor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/dashboard.css">
 </head>
 <body>
 
-  <div class="admin-layout">
-
-    <!-- ===================== SIDEBAR ===================== -->
-    <aside class="admin-sidebar" id="admin-sidebar">
-      <div class="admin-sidebar-brand">
-        <img src="../img/logo-cronos.png" alt="Cronos" style="height:64px;width:auto;margin-bottom:6px">
-        <span>Panel de administración</span>
+  <!-- ================= TOPBAR ================= -->
+  <header class="admin-topbar">
+    <div class="topbar-brand">
+      <div class="brand-crown">👑</div>
+      <div class="brand-titles">
+        <strong>CRONOS</strong>
+        <span>Panel del vendedor</span>
       </div>
+    </div>
 
-      <nav class="admin-nav">
-        <a href="#" class="admin-nav-link active" data-section="dashboard">Dashboard</a>
-        <a href="#" class="admin-nav-link" data-section="stock">Stock</a>
-        <a href="#" class="admin-nav-link" data-section="ventas">Ventas</a>
-        <a href="#" class="admin-nav-link" data-section="compras">Compras</a>
-        <a href="#" class="admin-nav-link" data-section="proveedores">Proveedores</a>
-        <a href="#" class="admin-nav-link" data-section="clientes">Clientes</a>
+    <div class="topbar-search">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="global-search" placeholder="Buscar productos en el panel...">
+    </div>
+
+    <div class="topbar-profile">
+      <div class="notif-badge" title="Notificaciones">
+        🔔<span class="badge-dot">3</span>
+      </div>
+      <div class="admin-user">
+        <div class="user-avatar">👤</div>
+        <span id="admin-email-label">Administrador</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="admin-layout">
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="admin-sidebar">
+      <nav class="sidebar-nav">
+        <a href="../index.html" class="nav-item" target="_blank">
+          <span class="nav-icon">🏠</span>
+          <span>Ver Tienda</span>
+        </a>
+        <a href="#" class="nav-item active" id="nav-productos">
+          <span class="nav-icon">⌚</span>
+          <span>Productos</span>
+        </a>
+        <a href="../catalogo.html" class="nav-item" target="_blank">
+          <span class="nav-icon">🛍️</span>
+          <span>Catálogo Público</span>
+        </a>
+        <a href="../agente-ia.html" class="nav-item" target="_blank">
+          <span class="nav-icon">🤖</span>
+          <span>Probar Asesor IA</span>
+        </a>
       </nav>
 
-      <div class="admin-sidebar-footer">
-        <a href="../index.html">← Volver al sitio</a>
+      <div class="sidebar-footer">
+        <button type="button" id="btn-logout" class="btn-logout">
+          <span>🚪</span>
+          <span>Cerrar sesión</span>
+        </button>
       </div>
     </aside>
 
-    <div class="admin-sidebar-overlay" id="admin-sidebar-overlay"></div>
+    <!-- ================= CONTENIDO PRINCIPAL ================= -->
+    <main class="admin-main">
 
-    <!-- ===================== CONTENIDO ===================== -->
-    <div class="admin-main">
-      <header class="admin-topbar">
-        <div style="display:flex;align-items:center">
-          <button class="admin-menu-toggle" id="admin-menu-toggle" aria-label="Abrir menú">&#9776;</button>
-          <h1 id="admin-titulo-seccion">Dashboard</h1>
+      <!-- VISTA 1: CATÁLOGO DE PRODUCTOS (CUADRÍCULA) -->
+      <section id="view-catalogo" class="admin-view active">
+        <div class="view-header">
+          <div>
+            <h1>Catálogo de productos</h1>
+            <p>Administra tus relojes. Agrega, edita o elimina productos.</p>
+          </div>
+          <button type="button" id="btn-nuevo-producto" class="btn-primary-blue">
+            + Agregar producto
+          </button>
         </div>
-        <div>
-          <span id="admin-nombre" style="margin-right:16px;color:var(--text-muted);font-size: 17px"></span>
-          <button id="btn-logout" class="logout-link">Cerrar sesión</button>
+
+        <!-- Barra de filtros -->
+        <div class="filters-bar">
+          <div class="filter-search-box">
+            <span>🔍</span>
+            <input type="text" id="filter-search" placeholder="Buscar por nombre, modelo o marca...">
+          </div>
+
+          <select id="filter-marca" class="filter-select">
+            <option value="todas">Todas las marcas</option>
+            <option value="CASIO">CASIO</option>
+            <option value="ROLEX">ROLEX</option>
+            <option value="GUESS">GUESS</option>
+            <option value="SEIKO">SEIKO</option>
+            <option value="TISSOT">TISSOT</option>
+            <option value="CITIZEN">CITIZEN</option>
+            <option value="CRONOS">CRONOS</option>
+          </select>
+
+          <select id="filter-estado" class="filter-select">
+            <option value="todos">Todos los estados</option>
+            <option value="Activo">Activo</option>
+            <option value="Inactivo">Inactivo</option>
+          </select>
+
+          <select id="filter-orden" class="filter-select">
+            <option value="recientes">Más recientes</option>
+            <option value="precio-asc">Menor precio</option>
+            <option value="precio-desc">Mayor precio</option>
+            <option value="nombre">Nombre A-Z</option>
+          </select>
         </div>
-      </header>
 
-      <main class="admin-content">
+        <!-- Grilla de tarjetas de relojes -->
+        <div id="admin-products-grid" class="admin-products-grid">
+          <!-- Renderizado dinámico por dashboard.js -->
+        </div>
 
-        <!-- ============ DASHBOARD ============ -->
-        <section class="admin-section active" data-section="dashboard">
-          <div class="stat-grid">
-            <div class="stat-card">
-              <span class="stat-label">Ventas hoy</span>
-              <span class="stat-value" id="stat-ventas-hoy">—</span>
+        <!-- Paginación inferior -->
+        <div class="pagination-bar">
+          <span id="pagination-info" class="pagination-info">Mostrando 0 productos</span>
+          <div id="pagination-controls" class="pagination-controls"></div>
+        </div>
+      </section>
+
+      <!-- VISTA 2: AGREGAR / EDITAR PRODUCTO -->
+      <section id="view-formulario" class="admin-view">
+        <form id="form-producto">
+          <input type="hidden" id="prod-id" value="">
+
+          <div class="form-top-header">
+            <div class="form-title-group">
+              <button type="button" id="btn-volver-catalogo" class="btn-back" title="Volver al catálogo">❮</button>
+              <div>
+                <h1 id="form-main-title">Agregar producto</h1>
+                <p>Completa la información y sube las fotografías del reloj</p>
+              </div>
             </div>
-            <div class="stat-card">
-              <span class="stat-label">Total vendido hoy</span>
-              <span class="stat-value" id="stat-total-hoy">—</span>
-            </div>
-            <div class="stat-card stat-alerta">
-              <span class="stat-label">Relojes con stock bajo</span>
-              <span class="stat-value" id="stat-stock-bajo">—</span>
-            </div>
-            <div class="stat-card">
-              <span class="stat-label">Clientes registrados</span>
-              <span class="stat-value" id="stat-clientes">—</span>
+            <div class="form-top-actions">
+              <button type="button" id="btn-guardar-borrador" class="btn-outline-gray">Guardar borrador</button>
+              <button type="submit" id="btn-publicar" class="btn-primary-blue">Publicar producto</button>
             </div>
           </div>
 
-          <div class="admin-table-wrap">
-            <div class="admin-table-head">
-              <h2>Últimas ventas</h2>
+          <!-- SECCIÓN 1: IMÁGENES DEL PRODUCTO -->
+          <div class="form-card">
+            <div class="card-section-title">
+              <span class="blue-indicator"></span>
+              <h3>Imágenes del producto</h3>
             </div>
-            <table class="admin-table">
-              <thead>
-                <tr><th>Fecha</th><th>Reloj</th><th>Cant.</th><th>Total</th><th>Cliente</th></tr>
-              </thead>
-              <tbody id="tabla-dashboard-ventas"></tbody>
-            </table>
-          </div>
-        </section>
 
-        <!-- ============ STOCK ============ -->
-        <section class="admin-section" data-section="stock">
-          <div class="admin-table-wrap">
-            <div class="admin-table-head">
-              <h2>Stock de relojes</h2>
+            <div class="images-upload-layout">
+              <!-- Imagen Principal -->
+              <div class="main-image-col">
+                <label class="sub-label">Imagen principal *</label>
+                <div class="main-image-preview" id="main-image-dropzone">
+                  <img id="preview-main-img" src="../img/logo-cronos.png" alt="Vista previa">
+                </div>
+                <input type="file" id="input-main-img" accept="image/jpeg,image/png,image/webp" hidden>
+                <button type="button" id="btn-trigger-main-img" class="btn-upload-main">
+                  ⬆️ Cambiar imagen
+                </button>
+                <small class="upload-hint">JPG, PNG o WEBP (máx. 5 MB)</small>
+              </div>
+
+              <!-- Imágenes Adicionales (Ángulos) -->
+              <div class="extra-images-col">
+                <div class="extra-header">
+                  <div>
+                    <label class="sub-label">Imágenes adicionales (Vistas / Ángulos)</label>
+                    <p class="sub-desc">Puedes subir hasta 5 imágenes en diferentes posiciones para la galería interactiva.</p>
+                  </div>
+                  <input type="file" id="input-extra-imgs" accept="image/jpeg,image/png,image/webp" multiple hidden>
+                  <button type="button" id="btn-trigger-extra-imgs" class="btn-select-extra">
+                    + Seleccionar imágenes
+                  </button>
+                </div>
+
+                <!-- Slots 1 al 5 -->
+                <div id="extra-images-grid" class="extra-images-grid">
+                  <!-- Se rellena dinámicamente en modales.js / dashboard.js -->
+                </div>
+              </div>
             </div>
-            <table class="admin-table">
-              <thead>
-                <tr><th>Reloj</th><th>Categoría</th><th>Precio</th><th>Stock actual</th><th>Stock mínimo</th><th>Acciones</th></tr>
-              </thead>
-              <tbody id="tabla-stock"></tbody>
-            </table>
           </div>
-        </section>
 
-        <!-- ============ VENTAS ============ -->
-        <section class="admin-section" data-section="ventas">
-          <div class="admin-table-wrap">
-            <div class="admin-table-head">
-              <h2>Ventas registradas</h2>
-              <button class="btn-nuevo" onclick="abrirModalNuevaVenta()">+ Registrar venta</button>
+          <!-- SECCIÓN 2: INFORMACIÓN DEL PRODUCTO -->
+          <div class="form-card">
+            <div class="card-section-title">
+              <span class="blue-indicator"></span>
+              <h3>Información del producto</h3>
             </div>
-            <table class="admin-table">
-              <thead>
-                <tr><th>Fecha</th><th>Reloj</th><th>Cant.</th><th>Precio unit.</th><th>Total</th><th>Cliente</th><th>Pago</th><th>Acciones</th></tr>
-              </thead>
-              <tbody id="tabla-ventas"></tbody>
-            </table>
-          </div>
-        </section>
 
-        <!-- ============ COMPRAS ============ -->
-        <section class="admin-section" data-section="compras">
-          <div class="admin-table-wrap">
-            <div class="admin-table-head">
-              <h2>Compras a proveedores</h2>
-              <button class="btn-nuevo" onclick="abrirModalNuevaCompra()">+ Registrar compra</button>
+            <div class="form-grid-3">
+              <div class="form-group">
+                <label for="prod-nombre">Nombre del producto *</label>
+                <input type="text" id="prod-nombre" required placeholder="Ej: Reloj CASIO MTP-1183G-7A">
+              </div>
+
+              <div class="form-group">
+                <label for="prod-precio">Precio (Bs) *</label>
+                <div class="input-with-prefix">
+                  <span>Bs</span>
+                  <input type="number" id="prod-precio" step="0.01" min="0" required placeholder="650.00">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="prod-estado">Estado *</label>
+                <select id="prod-estado">
+                  <option value="Activo">🟢 Activo</option>
+                  <option value="Inactivo">⚪ Inactivo</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="prod-modelo">Modelo / Referencia *</label>
+                <input type="text" id="prod-modelo" required placeholder="Ej: MTP-1183G-7A">
+              </div>
+
+              <div class="form-group">
+                <label for="prod-stock">Stock *</label>
+                <input type="number" id="prod-stock" min="0" value="10" required>
+              </div>
+
+              <div class="form-group">
+                <label for="prod-categoria">Género / Categoría *</label>
+                <select id="prod-categoria">
+                  <option value="hombre">Hombre</option>
+                  <option value="mujer">Mujer</option>
+                  <option value="unisex">Unisex</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="prod-marca">Marca *</label>
+                <input type="text" id="prod-marca" list="marcas-list" required placeholder="Ej: CASIO">
+                <datalist id="marcas-list">
+                  <option value="CASIO">
+                  <option value="ROLEX">
+                  <option value="GUESS">
+                  <option value="SEIKO">
+                  <option value="TISSOT">
+                  <option value="CITIZEN">
+                  <option value="CRONOS">
+                </datalist>
+              </div>
+
+              <div class="form-group">
+                <label for="prod-estilo">Estilo (Para Asesor IA)</label>
+                <select id="prod-estilo">
+                  <option value="Clásico">Clásico</option>
+                  <option value="Elegante">Elegante</option>
+                  <option value="Deportivo">Deportivo</option>
+                  <option value="De vestir">De vestir</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="prod-tipo-correa">Material de Correa</label>
+                <select id="prod-tipo-correa">
+                  <option value="Metal">Metal / Acero Inoxidable</option>
+                  <option value="Cuero">Cuero</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="prod-color-correa">Color de Correa</label>
+                <select id="prod-color-correa">
+                  <option value="Dorado">Dorado</option>
+                  <option value="Plateado">Plateado</option>
+                  <option value="Negro">Negro</option>
+                  <option value="Marrón">Marrón</option>
+                  <option value="Azul">Azul</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="prod-esfera">Diseño de Esfera</label>
+                <select id="prod-esfera">
+                  <option value="Con números">Con números</option>
+                  <option value="Cronógrafo">Cronógrafo</option>
+                  <option value="Con detalles">Con detalles decorativos</option>
+                </select>
+              </div>
             </div>
-            <table class="admin-table">
-              <thead>
-                <tr><th>Fecha</th><th>Proveedor</th><th>Reloj</th><th>Cant.</th><th>Precio unit.</th><th>Factura</th><th>Acciones</th></tr>
-              </thead>
-              <tbody id="tabla-compras"></tbody>
-            </table>
           </div>
-        </section>
 
-        <!-- ============ PROVEEDORES ============ -->
-        <section class="admin-section" data-section="proveedores">
-          <div class="admin-table-wrap">
-            <div class="admin-table-head">
-              <h2>Proveedores</h2>
-              <button class="btn-nuevo" onclick="abrirModalNuevoProveedor()">+ Nuevo proveedor</button>
+          <!-- SECCIÓN 3: DESCRIPCIÓN Y OPCIONES -->
+          <div class="form-bottom-grid">
+            <div class="form-card">
+              <div class="card-section-title">
+                <span class="blue-indicator"></span>
+                <h3>Descripción del producto</h3>
+              </div>
+              <div class="rich-editor-box">
+                <div class="editor-toolbar">
+                  <button type="button" onclick="insertarTexto('**')"><b>B</b></button>
+                  <button type="button" onclick="insertarTexto('*')"><i>I</i></button>
+                  <button type="button" onclick="insertarTexto('\n• ')">≣</button>
+                </div>
+                <textarea id="prod-descripcion" rows="5" maxlength="1000" placeholder="Reloj analógico, diseño clásico y elegante, con correa de acero inoxidable..."></textarea>
+                <div class="char-counter"><span id="desc-count">0</span>/1000</div>
+              </div>
             </div>
-            <table class="admin-table">
-              <thead>
-                <tr><th>Nombre</th><th>Contacto</th><th>Teléfono</th><th>Correo</th><th>Estado</th><th>Acciones</th></tr>
-              </thead>
-              <tbody id="tabla-proveedores"></tbody>
-            </table>
-          </div>
-        </section>
 
-        <!-- ============ CLIENTES ============ -->
-        <section class="admin-section" data-section="clientes">
-          <div class="admin-table-wrap">
-            <div class="admin-table-head">
-              <h2>Clientes registrados en el sitio</h2>
+            <div class="form-card">
+              <div class="card-section-title">
+                <span class="blue-indicator"></span>
+                <h3>Opciones adicionales</h3>
+              </div>
+              <div class="checkbox-list">
+                <label class="custom-check">
+                  <input type="checkbox" id="prod-destacado">
+                  <span>Destacar producto en portada (Inicio)</span>
+                </label>
+                <label class="custom-check">
+                  <input type="checkbox" id="prod-mostrar" checked>
+                  <span>Mostrar inmediatamente en la tienda</span>
+                </label>
+              </div>
             </div>
-            <table class="admin-table">
-              <thead>
-                <tr><th>Nombre</th><th>Correo</th><th>Teléfono</th><th>Registrado</th></tr>
-              </thead>
-              <tbody id="tabla-clientes"></tbody>
-            </table>
           </div>
-        </section>
 
-      </main>
-    </div>
+        </form>
+      </section>
+
+    </main>
   </div>
 
-  <!-- ===================== MODAL: PRODUCTO (editar reloj) ===================== -->
-  <div class="modal" id="modal-producto">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3>Editar reloj</h3>
-        <button class="modal-close" onclick="cerrarModal('modal-producto')">&times;</button>
-      </div>
-      <form id="form-producto">
-        <input type="hidden" id="producto-id">
-        <div class="modal-body">
-          <div class="field">
-            <label>Nombre</label>
-            <input type="text" id="producto-nombre" required>
-          </div>
-          <div class="field">
-            <label>Categoría</label>
-            <select id="producto-categoria" required>
-              <option value="hombre">Hombre</option>
-              <option value="mujer">Mujer</option>
-              <option value="unisex">Unisex</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Precio (Bs)</label>
-            <input type="number" id="producto-precio" min="0" step="0.01" required>
-          </div>
-          <div class="field">
-            <label>Estilo</label>
-            <input type="text" id="producto-estilo" placeholder="Ej: Elegante, Deportivo...">
-          </div>
-          <div class="field">
-            <label>Tipo de correa</label>
-            <input type="text" id="producto-tipo-correa" placeholder="Ej: Metal, Cuero...">
-          </div>
-          <div class="field">
-            <label>Color de correa</label>
-            <input type="text" id="producto-color-correa" placeholder="Ej: Dorado, Negro...">
-          </div>
-          <div class="field">
-            <label>Diseño de esfera</label>
-            <input type="text" id="producto-diseno-esfera" placeholder="Ej: Cronógrafo, Con números...">
-          </div>
-          <div class="field">
-            <label>Stock mínimo (para la alerta)</label>
-            <input type="number" id="producto-stock-minimo" min="0" value="3">
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn-secundario" onclick="cerrarModal('modal-producto')">Cancelar</button>
-          <button type="submit" class="btn btn-primary" style="padding:11px 20px">Guardar cambios</button>
-        </div>
-      </form>
-    </div>
-  </div>
+  <!-- Notificación Toast -->
+  <div id="admin-toast" class="admin-toast"></div>
 
-  <!-- ===================== MODAL: VENTA (nueva / editar) ===================== -->
-  <div class="modal" id="modal-venta">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3 id="modal-venta-titulo">Registrar venta</h3>
-        <button class="modal-close" onclick="cerrarModal('modal-venta')">&times;</button>
-      </div>
-      <form id="form-venta">
-        <input type="hidden" id="venta-id">
-        <div class="modal-body">
-          <div class="field">
-            <label>Reloj</label>
-            <select id="venta-producto" required></select>
-          </div>
-          <div class="field">
-            <label>Cantidad</label>
-            <input type="number" id="venta-cantidad" min="1" value="1" required>
-          </div>
-          <div class="field">
-            <label>Precio unitario (Bs)</label>
-            <input type="number" id="venta-precio" min="0" step="0.01" required>
-          </div>
-          <div class="field">
-            <label>Nombre del cliente (opcional)</label>
-            <input type="text" id="venta-cliente-nombre" placeholder="Ej: Daniela Pérez">
-          </div>
-          <div class="field">
-            <label>Teléfono del cliente (opcional)</label>
-            <input type="text" id="venta-cliente-telefono" placeholder="Ej: 71234567">
-          </div>
-          <div class="field">
-            <label>Método de pago</label>
-            <select id="venta-metodo-pago">
-              <option value="efectivo">Efectivo</option>
-              <option value="transferencia">Transferencia</option>
-              <option value="qr">QR</option>
-              <option value="tarjeta">Tarjeta</option>
-            </select>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn-secundario" onclick="cerrarModal('modal-venta')">Cancelar</button>
-          <button type="submit" class="btn btn-primary" id="modal-venta-btn" style="padding:11px 20px">Guardar venta</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- ===================== MODAL: COMPRA (nueva / editar) ===================== -->
-  <div class="modal" id="modal-compra">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3 id="modal-compra-titulo">Registrar compra a proveedor</h3>
-        <button class="modal-close" onclick="cerrarModal('modal-compra')">&times;</button>
-      </div>
-      <form id="form-compra">
-        <input type="hidden" id="compra-id">
-        <div class="modal-body">
-          <div class="field">
-            <label>Proveedor</label>
-            <select id="compra-proveedor" required></select>
-          </div>
-          <div class="field">
-            <label>Reloj</label>
-            <select id="compra-producto" required></select>
-          </div>
-          <div class="field">
-            <label>Cantidad</label>
-            <input type="number" id="compra-cantidad" min="1" value="1" required>
-          </div>
-          <div class="field">
-            <label>Precio unitario de costo (Bs)</label>
-            <input type="number" id="compra-precio" min="0" step="0.01" required>
-          </div>
-          <div class="field">
-            <label>Fecha de compra</label>
-            <input type="date" id="compra-fecha" required>
-          </div>
-          <div class="field">
-            <label>N° de factura (opcional)</label>
-            <input type="text" id="compra-factura">
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn-secundario" onclick="cerrarModal('modal-compra')">Cancelar</button>
-          <button type="submit" class="btn btn-primary" id="modal-compra-btn" style="padding:11px 20px">Guardar compra</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- ===================== MODAL: PROVEEDOR (nuevo / editar) ===================== -->
-  <div class="modal" id="modal-proveedor">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3 id="modal-proveedor-titulo">Nuevo proveedor</h3>
-        <button class="modal-close" onclick="cerrarModal('modal-proveedor')">&times;</button>
-      </div>
-      <form id="form-proveedor">
-        <input type="hidden" id="proveedor-id">
-        <div class="modal-body">
-          <div class="field">
-            <label>Nombre del proveedor</label>
-            <input type="text" id="proveedor-nombre" required>
-          </div>
-          <div class="field">
-            <label>Persona de contacto</label>
-            <input type="text" id="proveedor-contacto">
-          </div>
-          <div class="field">
-            <label>Teléfono</label>
-            <input type="text" id="proveedor-telefono">
-          </div>
-          <div class="field">
-            <label>Correo</label>
-            <input type="email" id="proveedor-correo">
-          </div>
-          <div class="field">
-            <label>Dirección</label>
-            <input type="text" id="proveedor-direccion">
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn-secundario" onclick="cerrarModal('modal-proveedor')">Cancelar</button>
-          <button type="submit" class="btn btn-primary" id="modal-proveedor-btn" style="padding:11px 20px">Guardar proveedor</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
+  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/supabase-config.js"></script>
   <script src="js/admin-auth.js"></script>
-  <script src="js/dashboard.js"></script>
   <script src="js/modales.js"></script>
+  <script src="js/dashboard.js"></script>
 </body>
 </html>

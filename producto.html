@@ -1,121 +1,578 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Detalle de Reloj - Cronos</title>
-  
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relojería CRONOS — Detalle del Reloj</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
-  
-  <link rel="stylesheet" href="css/styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* ================= ESTILOS DE LA GALERÍA DE PRODUCTO (FASE 3) ================= */
+    .product-detail-section {
+      padding: 40px 0 80px;
+      background: #f8fafc;
+      font-family: 'Inter', sans-serif;
+    }
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
+    .breadcrumb-nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: #64748b;
+      margin-bottom: 24px;
+    }
+
+    .breadcrumb-nav a {
+      color: #64748b;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .breadcrumb-nav a:hover {
+      color: #111116;
+    }
+
+    .breadcrumb-nav strong {
+      color: #1e293b;
+      font-weight: 600;
+    }
+
+    .product-detail-card {
+      background: #ffffff;
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      padding: 32px;
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 44px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+    }
+
+    /* Columna Izquierda: Galería */
+    .gallery-column {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .main-stage {
+      position: relative;
+      height: 440px;
+      background: #f4f5f7;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border: 1px solid #edf2f7;
+    }
+
+    .main-stage img {
+      max-width: 82%;
+      max-height: 85%;
+      object-fit: contain;
+      transition: transform 0.35s ease;
+      cursor: zoom-in;
+    }
+
+    .main-stage:hover img {
+      transform: scale(1.04);
+    }
+
+    .gallery-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      color: #1e293b;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transition: all 0.2s ease;
+      z-index: 5;
+    }
+
+    .gallery-arrow:hover {
+      background: #111116;
+      color: #ffffff;
+    }
+
+    .gallery-arrow.prev {
+      left: 16px;
+    }
+
+    .gallery-arrow.next {
+      right: 16px;
+    }
+
+    .btn-zoom-hint {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.82);
+      color: #ffffff;
+      border: none;
+      padding: 7px 16px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+      transition: background 0.2s;
+    }
+
+    .btn-zoom-hint:hover {
+      background: rgba(15, 23, 42, 0.95);
+    }
+
+    /* Tira de miniaturas */
+    .thumbnails-track {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+    }
+
+    .thumb-item {
+      height: 84px;
+      background: #f4f5f7;
+      border: 2px solid transparent;
+      border-radius: 10px;
+      padding: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      overflow: hidden;
+      transition: all 0.2s ease;
+    }
+
+    .thumb-item img {
+      max-width: 90%;
+      max-height: 90%;
+      object-fit: contain;
+    }
+
+    .thumb-item:hover {
+      border-color: #cbd5e1;
+    }
+
+    .thumb-item.active {
+      border-color: #1868db;
+      background: #ffffff;
+      box-shadow: 0 4px 10px rgba(24, 104, 219, 0.12);
+    }
+
+    /* Columna Derecha: Información */
+    .info-column {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .info-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .brand-tag {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #1868db;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stock-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #dcfce7;
+      color: #15803d;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 20px;
+    }
+
+    .stock-pill.agotado {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .product-main-title {
+      font-size: 1.95rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 0 0 10px;
+      line-height: 1.2;
+    }
+
+    .rating-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      font-size: 0.85rem;
+    }
+
+    .stars-gold {
+      color: #f59e0b;
+      letter-spacing: 2px;
+      font-size: 1rem;
+    }
+
+    .rating-score {
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .rating-reviews {
+      color: #64748b;
+    }
+
+    .product-description {
+      font-size: 0.94rem;
+      line-height: 1.65;
+      color: #475569;
+      margin-bottom: 22px;
+    }
+
+    .price-banner {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .current-price {
+      font-size: 2.1rem;
+      font-weight: 800;
+      color: #dc2626;
+    }
+
+    .old-price {
+      font-size: 1.05rem;
+      color: #94a3b8;
+      text-decoration: line-through;
+    }
+
+    .discount-badge {
+      background: #ef4444;
+      color: #ffffff;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 14px;
+    }
+
+    /* Tabla de Especificaciones */
+    .specs-list {
+      border-top: 1px solid #e2e8f0;
+      margin-bottom: 26px;
+    }
+
+    .spec-row {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      padding: 11px 0;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 0.88rem;
+    }
+
+    .spec-label {
+      color: #475569;
+      font-weight: 600;
+    }
+
+    .spec-value {
+      color: #0f172a;
+      font-weight: 500;
+    }
+
+    /* Botones de Acción */
+    .purchase-actions {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 26px;
+    }
+
+    .btn-buy-whatsapp {
+      flex: 1;
+      background: #0d6efd;
+      color: #ffffff;
+      text-decoration: none;
+      padding: 15px 24px;
+      border-radius: 10px;
+      font-size: 0.98rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: background 0.2s, transform 0.2s;
+      box-shadow: 0 6px 18px rgba(13, 110, 253, 0.25);
+    }
+
+    .btn-buy-whatsapp:hover {
+      background: #0b5ed7;
+      transform: translateY(-2px);
+    }
+
+    .btn-fav-heart {
+      width: 52px;
+      height: 52px;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-fav-heart:hover,
+    .btn-fav-heart.active {
+      border-color: #ef4444;
+      color: #ef4444;
+      background: #fef2f2;
+    }
+
+    /* Sellos de Confianza */
+    .trust-badges {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      padding-top: 8px;
+    }
+
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.84rem;
+      font-weight: 500;
+      color: #334155;
+    }
+
+    /* Lightbox (Modal de Ampliación) */
+    .lightbox-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 10, 15, 0.9);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 24px;
+    }
+
+    .lightbox-modal.open {
+      display: flex;
+    }
+
+    .lightbox-modal img {
+      max-width: 90vw;
+      max-height: 88vh;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 24px;
+      right: 30px;
+      background: #ffffff;
+      border: none;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+
+    @media (max-width: 900px) {
+      .product-detail-card {
+        grid-template-columns: 1fr;
+        padding: 20px;
+      }
+      .main-stage {
+        height: 340px;
+      }
+    }
+  </style>
 </head>
 <body class="light-theme">
 
-  <header class="main-header">
-    <div class="nav-container">
-      <a href="index.html" class="brand-logo">
-        <img src="img/logo-cronos.png" alt="Cronos Logo" class="nav-logo" onerror="this.style.display='none'">
-        <span>CRONOS</span>
+  <!-- ===================== NAVBAR ===================== -->
+  <header class="navbar">
+    <div class="container nav-container-flex">
+      <a href="index.html" class="brand">
+        <img src="img/logo-cronos.png" alt="Cronos - Tienda de relojes" class="brand-logo-img">
+        <span class="brand-text">CRONOS</span>
       </a>
+
       <nav class="nav-links">
         <a href="index.html">Inicio</a>
-        <a href="catalogo.html">Colección</a>
-        <a href="agente-ia.html">Asesor Virtual</a>
+        <a href="catalogo.html" class="active">Catálogo</a>
+        <a href="index.html#nosotros">Nosotros</a>
+        <a href="index.html#contacto">Contacto</a>
       </nav>
+
+      <div class="nav-actions">
+        <div id="auth-slot"><a href="login.html" class="btn-auth-link">Ingresar</a></div>
+        <button class="nav-toggle" aria-label="Abrir menú">&#9776;</button>
+      </div>
     </div>
   </header>
 
-  <main class="product-page-main">
-    <div class="product-detail-layout">
-      
-      <!-- Columna Izquierda: Visor 3D directo -->
-      <section class="viewer-column">
-        <div class="product-viewer-container">
-          <model-viewer
-            id="reloj-viewer"
-            src=""
-            poster=""
-            loading="eager"
-            camera-controls
-            auto-rotate
-            rotation-per-second="30deg"
-            touch-action="pan-y"
-            shadow-intensity="1.2"
-            shadow-softness="0.8"
-            environment-image="neutral"
-            exposure="1.0"
-            camera-orbit="0deg 75deg 105%"
-            min-camera-orbit="auto auto 65%"
-            max-camera-orbit="auto auto 220%"
-            alt="Visualización 3D Reloj">
+  <!-- ===================== DETALLE DE PRODUCTO ===================== -->
+  <main class="product-detail-section">
+    <div class="container">
 
-            <!-- Barra de progreso discreta durante la descarga inicial -->
-            <div slot="progress-bar" class="custom-progress-bar hide" id="progress-bar">
-              <div class="progress-fill" id="progress-fill"></div>
-              <span class="progress-text" id="progress-text">Cargando 3D...</span>
-            </div>
+      <!-- Migas de pan (Breadcrumbs) -->
+      <nav class="breadcrumb-nav">
+        <a href="catalogo.html">Productos</a>
+        <span>›</span>
+        <span id="bread-marca">RELOJERÍA</span>
+        <span>›</span>
+        <strong id="bread-modelo">Cargando...</strong>
+      </nav>
 
-            <!-- Controles flotantes de cámara -->
-            <div class="viewer-floating-controls" id="viewer-controls">
-              <button type="button" id="btn-rotate-toggle" title="Girar reloj" class="active">🔄 Giro</button>
-              <button type="button" id="btn-front-cam" title="Vista Frontal">🎯 Frontal</button>
-              <button type="button" id="btn-side-cam" title="Vista Lateral">📐 Perfil</button>
-            </div>
-          </model-viewer>
-        </div>
-      </section>
+      <div class="product-detail-card">
 
-      <!-- Columna Derecha: Información del Producto -->
-      <section class="info-column">
-        <div class="product-info-card">
-          <span class="badge-edition" id="producto-categoria">COLECCIÓN EXCLUSIVA</span>
-          <h1 id="producto-nombre" class="product-title">Cargando pieza...</h1>
-          
-          <div class="price-container">
-            <span class="currency">Bs</span>
-            <span id="producto-precio" class="price-val">0.00</span>
+        <!-- COLUMNA IZQUIERDA: GALERÍA MULTI-ÁNGULO -->
+        <div class="gallery-column">
+          <div class="main-stage">
+            <button type="button" class="gallery-arrow prev" id="btn-prev-img" aria-label="Imagen anterior">❮</button>
+            <img id="main-gallery-img" src="img/logo-cronos.png" alt="Vista del reloj">
+            <button type="button" class="gallery-arrow next" id="btn-next-img" aria-label="Siguiente imagen">❯</button>
+
+            <button type="button" class="btn-zoom-hint" id="btn-open-zoom">
+              🔍 Haz clic para ampliar
+            </button>
           </div>
 
-          <p id="producto-descripcion" class="product-description">
-            Cargando detalles de la pieza seleccionada...
+          <!-- Tira de 4 a 6 miniaturas -->
+          <div class="thumbnails-track" id="thumbnails-track">
+            <!-- Generado dinámicamente por js/detalle-producto.js -->
+          </div>
+        </div>
+
+        <!-- COLUMNA DERECHA: ESPECIFICACIONES Y COMPRA -->
+        <div class="info-column">
+          <div class="info-top-bar">
+            <span class="brand-tag" id="producto-marca">CRONOS</span>
+            <span class="stock-pill" id="badge-stock">● En stock</span>
+          </div>
+
+          <h1 class="product-main-title" id="producto-nombre">Cargando reloj...</h1>
+
+          <div class="rating-row">
+            <span class="stars-gold">★★★★★</span>
+            <span class="rating-score">4.8</span>
+            <span class="rating-reviews">(24 reseñas verificadas)</span>
+          </div>
+
+          <p class="product-description" id="producto-descripcion">
+            Cargando información detallada del reloj...
           </p>
 
-          <div class="specs-grid">
-            <div class="spec-item">
-              <span class="spec-label">Material</span>
-              <span class="spec-value" id="producto-material">Acero Inoxidable</span>
+          <div class="price-banner">
+            <span class="current-price">Bs <span id="producto-precio">0.00</span></span>
+            <span class="old-price" id="producto-precio-anterior">Bs 0.00</span>
+            <span class="discount-badge">-20%</span>
+          </div>
+
+          <div class="specs-list">
+            <div class="spec-row">
+              <span class="spec-label">Marca:</span>
+              <span class="spec-value" id="spec-marca">CRONOS</span>
             </div>
-            <div class="spec-item">
-              <span class="spec-label">Movimiento</span>
-              <span class="spec-value" id="producto-movimiento">Automático</span>
+            <div class="spec-row">
+              <span class="spec-label">Modelo:</span>
+              <span class="spec-value" id="spec-modelo">—</span>
             </div>
-            <div class="spec-item">
-              <span class="spec-label">Resistencia</span>
-              <span class="spec-value" id="producto-resistencia">100m (10 ATM)</span>
+            <div class="spec-row">
+              <span class="spec-label">Stock:</span>
+              <span class="spec-value" id="spec-stock">10 unidades</span>
+            </div>
+            <div class="spec-row">
+              <span class="spec-label">Estado:</span>
+              <span class="spec-value" id="spec-estado">🟢 Activo</span>
             </div>
           </div>
 
-          <div class="actions-group">
-            <a href="#" id="btn-whatsapp-comprar" class="btn-primary-action" target="_blank" rel="noopener noreferrer">
-              Solicitar por WhatsApp
+          <div class="purchase-actions">
+            <a href="#" target="_blank" id="btn-whatsapp-comprar" class="btn-buy-whatsapp">
+              <span>🛒</span>
+              <span>Solicitar / Comprar por WhatsApp</span>
             </a>
-            <a href="catalogo.html" class="btn-secondary-action">
-              Volver al Catálogo
-            </a>
+            <button type="button" class="btn-fav-heart" id="btn-fav-toggle" title="Guardar en favoritos">
+              ♡
+            </button>
+          </div>
+
+          <div class="trust-badges">
+            <div class="trust-item">
+              <span>🚚</span>
+              <span>Envíos a todo el país</span>
+            </div>
+            <div class="trust-item">
+              <span>🛡️</span>
+              <span>Compra segura</span>
+            </div>
+            <div class="trust-item">
+              <span>🏅</span>
+              <span>Garantía oficial</span>
+            </div>
+            <div class="trust-item">
+              <span>⌚</span>
+              <span>Atención personalizada</span>
+            </div>
           </div>
         </div>
-      </section>
 
+      </div>
     </div>
   </main>
 
+  <!-- Modal Lightbox para ampliar imagen -->
+  <div class="lightbox-modal" id="lightbox-modal">
+    <button type="button" class="lightbox-close" id="lightbox-close">✕</button>
+    <img id="lightbox-img" src="" alt="Vista ampliada">
+  </div>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        &copy; 2026 Relojería Cronos. Todos los derechos reservados.
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase-config.js"></script>
   <script src="js/whatsapp-config.js"></script>
-  <script src="js/detalle-producto.js?v=2"></script>
+  <script src="js/detalle-producto.js?v=3"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>
