@@ -250,7 +250,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const { error } = await client.from("productos").insert([copia]);
     if (error) {
-      mostrarToast("Error: " + error.message);
+      mostrarToast("Error al duplicar: " + error.message);
       return;
     }
     mostrarToast("Producto duplicado");
@@ -337,7 +337,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   // ---------------------------------------------------------
-  // MÓDULO 2: VENTAS (Inspección dinámica y guardado seguro)
+  // MÓDULO 2: VENTAS (Lectura e Inserción Dinámica Sin Error 400)
   // ---------------------------------------------------------
   async function cargarVentas() {
     const tbody = document.getElementById("tbody-ventas");
@@ -357,10 +357,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
-    // Guardamos las columnas existentes de la tabla para usarlas al insertar
+    // Guardamos la lista de columnas reales que tiene tu tabla en Supabase
     columnasRealesVentas = Object.keys(data[0]);
 
-    data.sort((a, b) => new Date(b.fecha || b.fecha_venta || b.created_at || 0) - new Date(a.fecha || a.fecha_venta || a.created_at || 0));
+    data.sort((a, b) => new Date(b.fecha_venta || b.fecha || b.created_at || 0) - new Date(a.fecha_venta || a.fecha || a.created_at || 0));
 
     tbody.innerHTML = data.map(v => {
       const fechaVal = v.fecha_venta || v.fecha || v.created_at;
@@ -440,55 +440,56 @@ document.addEventListener("DOMContentLoaded", async () => {
       const relojTexto = relojSelect.options[relojSelect.selectedIndex]?.text.split(" (Bs")[0] || "Reloj";
       const cant = parseInt(document.getElementById("venta-cantidad").value, 10) || 1;
       const precio = parseFloat(document.getElementById("venta-precio").value) || 0;
-      const cliente = document.getElementById("venta-cliente").value.trim() || "Cliente directo";
+      const nombreCliente = document.getElementById("venta-cliente").value.trim() || "Cliente directo";
       const tel = document.getElementById("venta-telefono").value.trim();
       const pago = document.getElementById("venta-pago").value;
 
-      // Diccionario con los nombres estándar de columnas
-      const camposPosibles = {
+      // Diccionario maestro de valores mapeados
+      const mapaValores = {
         producto_id: relojId,
+        reloj: relojTexto,
+        nombre_reloj: relojTexto,
         cantidad: cant,
+        cant: cant,
         precio_unitario: precio,
+        precio: precio,
         total: cant * precio,
-        nombre_cliente: cliente,
+        nombre_cliente: nombreCliente,
+        cliente: nombreCliente,
         telefono_cliente: tel,
+        telefono: tel,
         metodo_pago: pago,
-        fecha_venta: new Date().toISOString()
+        pago: pago,
+        fecha_venta: new Date().toISOString(),
+        fecha: new Date().toISOString().split("T")[0]
       };
 
-      let payloadFinal = {};
+      let payload = {};
 
       if (columnasRealesVentas && columnasRealesVentas.length > 0) {
-        // Filtramos para enviar ÚNICAMENTE las columnas que existen en tu base de datos
+        // Enviar ÚNICAMENTE las columnas que existen en tu tabla de Supabase para evitar el error de schema cache
         columnasRealesVentas.forEach(col => {
-          if (col === "id") return; // ID generado automáticamente
-          if (col in camposPosibles) {
-            payloadFinal[col] = camposPosibles[col];
-          } else if (col === "reloj") {
-            payloadFinal.reloj = relojTexto;
-          } else if (col === "pago") {
-            payloadFinal.pago = pago;
-          } else if (col === "fecha") {
-            payloadFinal.fecha = new Date().toISOString().split("T")[0];
+          if (col === "id" || col === "created_at") return;
+          if (col in mapaValores) {
+            payload[col] = mapaValores[col];
           }
         });
       } else {
-        // En caso de que la tabla estuviera vacía, se envía el conjunto estándar seguro (sin 'cliente')
-        payloadFinal = {
+        // Fallback seguro: solo campos universales
+        payload = {
           producto_id: relojId,
           cantidad: cant,
           precio_unitario: precio,
           total: cant * precio,
-          nombre_cliente: cliente,
-          telefono_cliente: tel,
+          nombre_cliente: nombreCliente,
           metodo_pago: pago
         };
       }
 
-      const { error } = await client.from("ventas").insert([payloadFinal]);
+      const { error } = await client.from("ventas").insert([payload]);
 
       if (error) {
-        mostrarToast("Error: " + error.message);
+        mostrarToast("Error al guardar venta: " + error.message);
         return;
       }
 
@@ -581,7 +582,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // ---------------------------------------------------------
-  // MÓDULO 4: CLIENTES
+  // MÓDULO 4: CLIENTES (Lectura directa de 'clientes')
   // ---------------------------------------------------------
   async function cargarClientes() {
     const tbody = document.getElementById("tbody-clientes");
@@ -618,6 +619,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }).join("");
   }
 
-  // Inicializar cargando el catálogo
+  // Cargar catálogo inicial
   cargarInventario();
 });
