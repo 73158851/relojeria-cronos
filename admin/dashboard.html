@@ -3,10 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CRONOS — Panel de Administración</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <title>CRONOS — Panel Administrativo</title>
   <link rel="stylesheet" href="css/dashboard.css">
 </head>
 <body>
@@ -29,7 +26,7 @@
 
     <div class="topbar-profile">
       <div class="admin-user">
-        <div class="user-avatar">👤</div>
+        <span>👤</span>
         <span id="admin-email-label">Administrador</span>
       </div>
     </div>
@@ -40,34 +37,34 @@
     <aside class="admin-sidebar" id="admin-sidebar">
       <nav class="sidebar-nav">
         <a href="#" class="nav-item active" id="nav-productos">
-          <span class="nav-icon">⌚</span>
+          <span>⌚</span>
           <span>Productos</span>
         </a>
         <a href="#" class="nav-item" id="nav-ventas">
-          <span class="nav-icon">💵</span>
+          <span>💵</span>
           <span>Ventas</span>
         </a>
         <a href="#" class="nav-item" id="nav-proveedores">
-          <span class="nav-icon">🚚</span>
+          <span>🚚</span>
           <span>Proveedores</span>
         </a>
         <a href="#" class="nav-item" id="nav-clientes">
-          <span class="nav-icon">👥</span>
+          <span>👥</span>
           <span>Clientes</span>
         </a>
 
         <hr class="sidebar-divider">
 
         <a href="../index.html" class="nav-item" target="_blank">
-          <span class="nav-icon">🏠</span>
+          <span>🏠</span>
           <span>Ver Tienda</span>
         </a>
         <a href="../catalogo.html" class="nav-item" target="_blank">
-          <span class="nav-icon">🛍️</span>
+          <span>🛍️</span>
           <span>Catálogo Público</span>
         </a>
         <a href="../agente-ia.html" class="nav-item" target="_blank">
-          <span class="nav-icon">🤖</span>
+          <span>✨</span>
           <span>Probar Asesor IA</span>
         </a>
       </nav>
@@ -88,9 +85,9 @@
         <div class="view-header">
           <div>
             <h1>Catálogo de Productos</h1>
-            <p>Administra los relojes del inventario y sus fotografías multiángulo.</p>
+            <p>Administra los relojes en stock y sus fotografías multiángulo.</p>
           </div>
-          <button type="button" id="btn-nuevo-producto" class="btn-primary-blue">
+          <button type="button" id="btn-nuevo-producto" class="btn-primary-cronos">
             + Agregar producto
           </button>
         </div>
@@ -128,9 +125,9 @@
 
         <div id="admin-products-grid" class="admin-products-grid"></div>
 
-        <div class="pagination-bar">
-          <span id="pagination-info" class="pagination-info">Mostrando 0 productos</span>
-          <div id="pagination-controls" class="pagination-controls"></div>
+        <div class="pagination-bar" style="margin-top:24px; display:flex; justify-content:space-between; align-items:center;">
+          <span id="pagination-info" style="font-size:13px; color:var(--text-muted);">Mostrando productos</span>
+          <div id="pagination-controls" style="display:flex; gap:6px;"></div>
         </div>
       </section>
 
@@ -141,43 +138,42 @@
 
           <div class="form-top-header">
             <div class="form-title-group">
-              <button type="button" id="btn-volver-catalogo" class="btn-back" title="Volver al catálogo">❮</button>
+              <button type="button" id="btn-volver-catalogo" class="btn-back">❮</button>
               <div>
-                <h1 id="form-main-title">Agregar producto</h1>
-                <p>Completa la información y sube las fotografías del reloj</p>
+                <h1 id="form-main-title" style="font-size:22px; color:var(--green-dark);">Agregar Producto</h1>
+                <p style="font-size:13px; color:var(--text-muted);">Completa las especificaciones técnicas y sube las fotografías multiángulo.</p>
               </div>
             </div>
             <div class="form-top-actions">
               <button type="button" id="btn-guardar-borrador" class="btn-outline-gray">Guardar borrador</button>
-              <button type="submit" id="btn-publicar" class="btn-primary-blue">Publicar producto</button>
+              <button type="submit" id="btn-publicar" class="btn-primary-cronos">Publicar producto</button>
             </div>
           </div>
 
-          <!-- SECCIÓN 1: IMÁGENES MULTIÁNGULO -->
+          <!-- SECCIÓN 1: FOTOGRAFÍAS MULTIÁNGULO -->
           <div class="form-card">
             <div class="card-section-title">
-              <span class="blue-indicator"></span>
-              <h3>Fotografías Multiángulo</h3>
+              <span class="green-indicator"></span>
+              <h3 style="font-size:16px;">Fotografías Multiángulo</h3>
             </div>
 
             <div class="images-upload-layout">
               <div class="main-image-col">
-                <label class="sub-label">Imagen principal *</label>
+                <label style="font-size:12.5px; font-weight:600; color:var(--text-muted); display:block;">Foto Principal *</label>
                 <div class="main-image-preview" id="main-image-dropzone">
                   <img id="preview-main-img" src="../img/logo-cronos.png" alt="Vista previa">
                 </div>
                 <input type="file" id="input-main-img" accept="image/jpeg,image/png,image/webp" hidden>
-                <button type="button" id="btn-trigger-main-img" class="btn-upload-main">
-                  ⬆️ Cambiar imagen principal
+                <button type="button" id="btn-trigger-main-img" class="btn-outline-gray" style="width:100%; font-size:12px;">
+                  ⬆️ Cambiar foto principal
                 </button>
-                <small class="upload-hint">JPG, PNG o WEBP</small>
               </div>
 
               <div class="extra-images-col">
                 <div class="extra-header">
                   <div>
-                    <label class="sub-label">Vistas / Ángulos adicionales</label>
-                    <p class="sub-desc">Sube hasta 5 fotos para la galería multiángulo interactiva.</p>
+                    <label style="font-size:12.5px; font-weight:600; color:var(--text-muted);">Vistas / Ángulos Adicionales (Hasta 5 fotos)</label>
+                    <p style="font-size:12px; color:var(--text-muted);">Permite al comprador examinar la corona, la correa, el reverso y los acabados.</p>
                   </div>
                   <input type="file" id="input-extra-imgs" accept="image/jpeg,image/png,image/webp" multiple hidden>
                   <button type="button" id="btn-trigger-extra-imgs" class="btn-select-extra">
@@ -189,29 +185,29 @@
             </div>
           </div>
 
-          <!-- SECCIÓN 2: INFORMACIÓN DEL PRODUCTO -->
+          <!-- SECCIÓN 2: INFORMACIÓN TÉCNICA -->
           <div class="form-card">
             <div class="card-section-title">
-              <span class="blue-indicator"></span>
-              <h3>Información del producto</h3>
+              <span class="green-indicator"></span>
+              <h3 style="font-size:16px;">Especificaciones Técnicas</h3>
             </div>
 
             <div class="form-grid-3">
               <div class="form-group">
-                <label for="prod-nombre">Nombre del producto *</label>
+                <label for="prod-nombre">Nombre Comercial *</label>
                 <input type="text" id="prod-nombre" required placeholder="Ej: Reloj CASIO Deportivo">
               </div>
 
               <div class="form-group">
-                <label for="prod-precio">Precio (Bs) *</label>
+                <label for="prod-precio">Precio Unitario (Bs) *</label>
                 <div class="input-with-prefix">
                   <span>Bs</span>
-                  <input type="number" id="prod-precio" step="0.01" min="0" required placeholder="310.00">
+                  <input type="number" id="prod-precio" step="0.01" min="0" required placeholder="350.00">
                 </div>
               </div>
 
               <div class="form-group">
-                <label for="prod-estado">Estado *</label>
+                <label for="prod-estado">Estado en Tienda *</label>
                 <select id="prod-estado">
                   <option value="Activo">🟢 Activo</option>
                   <option value="Inactivo">⚪ Inactivo</option>
@@ -224,7 +220,7 @@
               </div>
 
               <div class="form-group">
-                <label for="prod-stock">Stock disponible *</label>
+                <label for="prod-stock">Stock Físico *</label>
                 <input type="number" id="prod-stock" min="0" value="10" required>
               </div>
 
@@ -252,7 +248,7 @@
               </div>
 
               <div class="form-group">
-                <label for="prod-estilo">Estilo (Para Asesor IA) *</label>
+                <label for="prod-estilo">Estilo (Para CRONOAI) *</label>
                 <select id="prod-estilo">
                   <option value="Deportivo">Deportivo</option>
                   <option value="Clásico">Clásico</option>
@@ -261,7 +257,6 @@
                 </select>
               </div>
 
-              <!-- MATERIAL DE CORREA CON OPCIÓN GOMA AÑADIDA -->
               <div class="form-group">
                 <label for="prod-tipo-correa">Material de Correa *</label>
                 <select id="prod-tipo-correa">
@@ -271,7 +266,6 @@
                 </select>
               </div>
 
-              <!-- COLOR DE CORREA CON VERDE, NARANJA, ROSADO Y ROJO -->
               <div class="form-group">
                 <label for="prod-color-correa">Color de Correa *</label>
                 <select id="prod-color-correa">
@@ -298,34 +292,25 @@
             </div>
           </div>
 
-          <!-- SECCIÓN 3: DESCRIPCIÓN Y OPCIONES -->
-          <div class="form-bottom-grid">
-            <div class="form-card">
-              <div class="card-section-title">
-                <span class="blue-indicator"></span>
-                <h3>Descripción del producto</h3>
-              </div>
-              <div class="rich-editor-box">
-                <textarea id="prod-descripcion" rows="4" maxlength="1000" placeholder="Descripción clara del reloj..."></textarea>
-                <div class="char-counter"><span id="desc-count">0</span>/1000</div>
-              </div>
+          <!-- SECCIÓN 3: DESCRIPCIÓN -->
+          <div class="form-card">
+            <div class="card-section-title">
+              <span class="green-indicator"></span>
+              <h3 style="font-size:16px;">Descripción y Portada</h3>
             </div>
-
-            <div class="form-card">
-              <div class="card-section-title">
-                <span class="blue-indicator"></span>
-                <h3>Visibilidad</h3>
-              </div>
-              <div class="checkbox-list">
-                <label class="custom-check">
-                  <input type="checkbox" id="prod-destacado">
-                  <span>Destacar producto en portada</span>
-                </label>
-                <label class="custom-check">
-                  <input type="checkbox" id="prod-mostrar" checked>
-                  <span>Mostrar inmediatamente en la tienda</span>
-                </label>
-              </div>
+            <div class="form-group" style="margin-bottom:14px;">
+              <textarea id="prod-descripcion" rows="4" maxlength="1000" placeholder="Detalles de manufactura, resistencia al agua, tipo de cristal..."></textarea>
+              <div style="text-align:right; font-size:11.5px; color:var(--text-muted); margin-top:4px;"><span id="desc-count">0</span>/1000</div>
+            </div>
+            <div style="display:flex; gap:20px; flex-wrap:wrap;">
+              <label style="display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer;">
+                <input type="checkbox" id="prod-destacado">
+                <span>Destacar reloj en portada de inicio</span>
+              </label>
+              <label style="display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer;">
+                <input type="checkbox" id="prod-mostrar" checked>
+                <span>Mostrar inmediatamente en el catálogo</span>
+              </label>
             </div>
           </div>
         </form>
@@ -336,14 +321,14 @@
         <div class="view-header">
           <div>
             <h1>Registro de Ventas</h1>
-            <p>Control de ventas de mostrador y pedidos confirmados por WhatsApp.</p>
+            <p>Historial y registro de transacciones comerciales y pedidos de WhatsApp.</p>
           </div>
-          <button type="button" id="btn-nueva-venta" class="btn-primary-blue">
+          <button type="button" id="btn-nueva-venta" class="btn-primary-cronos">
             + Registrar venta
           </button>
         </div>
 
-        <div class="form-card table-card">
+        <div class="table-card">
           <div class="table-responsive">
             <table class="admin-table">
               <thead>
@@ -368,20 +353,20 @@
       <section id="view-proveedores" class="admin-view">
         <div class="view-header">
           <div>
-            <h1>Proveedores</h1>
-            <p>Directorio de distribuidores e importadores de relojería.</p>
+            <h1>Directorio de Proveedores</h1>
+            <p>Distribuidores e importadores mayoristas de relojería.</p>
           </div>
-          <button type="button" id="btn-nuevo-proveedor" class="btn-primary-blue">
+          <button type="button" id="btn-nuevo-proveedor" class="btn-primary-cronos">
             + Nuevo proveedor
           </button>
         </div>
 
-        <div class="form-card table-card">
+        <div class="table-card">
           <div class="table-responsive">
             <table class="admin-table">
               <thead>
                 <tr>
-                  <th>Nombre</th>
+                  <th>Proveedor</th>
                   <th>Contacto</th>
                   <th>Teléfono</th>
                   <th>Correo</th>
@@ -400,11 +385,11 @@
         <div class="view-header">
           <div>
             <h1>Clientes Registrados</h1>
-            <p>Usuarios que han creado su cuenta en la tienda CRONOS.</p>
+            <p>Base de datos de compradores con cuenta creada en la tienda.</p>
           </div>
         </div>
 
-        <div class="form-card table-card">
+        <div class="table-card">
           <div class="table-responsive">
             <table class="admin-table">
               <thead>
@@ -432,37 +417,37 @@
         <button type="button" class="btn-close-modal" onclick="cerrarModalVenta()">✕</button>
       </div>
       <form id="form-venta">
-        <div class="form-group">
+        <div class="form-group" style="margin-bottom:12px;">
           <label>Seleccionar Reloj *</label>
           <select id="venta-reloj" required></select>
         </div>
-        <div class="form-group">
+        <div class="form-group" style="margin-bottom:12px;">
           <label>Cantidad *</label>
           <input type="number" id="venta-cantidad" min="1" value="1" required>
         </div>
-        <div class="form-group">
+        <div class="form-group" style="margin-bottom:12px;">
           <label>Precio Unitario (Bs) *</label>
           <input type="number" id="venta-precio" step="0.01" required>
         </div>
-        <div class="form-group">
-          <label>Nombre del Cliente (Opcional)</label>
-          <input type="text" id="venta-cliente" placeholder="Ej: Daniel Guarachi">
+        <div class="form-group" style="margin-bottom:12px;">
+          <label>Nombre del Cliente</label>
+          <input type="text" id="venta-cliente" placeholder="Ej: Carlos Paniagua">
         </div>
-        <div class="form-group">
-          <label>Teléfono del Cliente</label>
-          <input type="text" id="venta-telefono" placeholder="Ej: 71234567">
+        <div class="form-group" style="margin-bottom:12px;">
+          <label>Teléfono de Contacto</label>
+          <input type="text" id="venta-telefono" placeholder="Ej: 78767554">
         </div>
-        <div class="form-group">
+        <div class="form-group" style="margin-bottom:16px;">
           <label>Método de Pago</label>
           <select id="venta-pago">
-            <option value="qr">Pago QR</option>
-            <option value="transferencia">Transferencia bancaria</option>
-            <option value="efectivo">Efectivo</option>
+            <option value="Efectivo">Efectivo</option>
+            <option value="Transferencia bancaria">Transferencia bancaria</option>
+            <option value="Pago QR">Pago QR</option>
           </select>
         </div>
         <div class="modal-actions">
           <button type="button" class="btn-outline-gray" onclick="cerrarModalVenta()">Cancelar</button>
-          <button type="submit" class="btn-primary-blue">Guardar Venta</button>
+          <button type="submit" class="btn-primary-cronos">Guardar Venta</button>
         </div>
       </form>
     </div>
@@ -476,29 +461,29 @@
         <button type="button" class="btn-close-modal" onclick="cerrarModalProveedor()">✕</button>
       </div>
       <form id="form-proveedor">
-        <div class="form-group">
-          <label>Nombre de la Empresa / Proveedor *</label>
-          <input type="text" id="prov-nombre" required placeholder="Ej: Relojería Royal">
+        <div class="form-group" style="margin-bottom:12px;">
+          <label>Empresa / Proveedor *</label>
+          <input type="text" id="prov-nombre" required placeholder="Ej: Distribuidora Relojera">
         </div>
-        <div class="form-group">
+        <div class="form-group" style="margin-bottom:12px;">
           <label>Persona de Contacto</label>
-          <input type="text" id="prov-contacto" placeholder="Ej: Augusto Martínez">
+          <input type="text" id="prov-contacto" placeholder="Ej: Juan Pérez">
         </div>
-        <div class="form-group">
+        <div class="form-group" style="margin-bottom:12px;">
           <label>Teléfono</label>
-          <input type="text" id="prov-telefono" placeholder="Ej: 78896575">
+          <input type="text" id="prov-telefono" placeholder="Ej: 71234567">
         </div>
-        <div class="form-group">
-          <label>Correo Electrónico</label>
-          <input type="email" id="prov-correo" placeholder="proveedor@correo.com">
+        <div class="form-group" style="margin-bottom:12px;">
+          <label>Correo</label>
+          <input type="email" id="prov-correo" placeholder="contacto@empresa.com">
         </div>
-        <div class="form-group">
+        <div class="form-group" style="margin-bottom:16px;">
           <label>Dirección</label>
-          <input type="text" id="prov-direccion" placeholder="Zona central, Santa Cruz">
+          <input type="text" id="prov-direccion" placeholder="Calle comercial, Santa Cruz">
         </div>
         <div class="modal-actions">
           <button type="button" class="btn-outline-gray" onclick="cerrarModalProveedor()">Cancelar</button>
-          <button type="submit" class="btn-primary-blue">Guardar Proveedor</button>
+          <button type="submit" class="btn-primary-cronos">Guardar Proveedor</button>
         </div>
       </form>
     </div>
