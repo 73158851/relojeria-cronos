@@ -1,8 +1,6 @@
 /* =========================================================
    CRONOS — Hoja de Estilos Global Unificada de Alta Relojería
-   Inspirada en Chronovia & Laxar
-   Paleta: Verde Esmeralda Profundo (#14532d), Oro Champagne (#c5a059) y Blanco Nítido
-   Tipografías: Cinzel (Editorial/Lujo) + Montserrat / Plus Jakarta Sans (Lectura)
+   Inspirada en Chronovia & Laxar (Verde Esmeralda, Oro y Blanco)
    ========================================================= */
 
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Montserrat:wght@300;400;500;600;700&display=swap');
@@ -20,15 +18,15 @@
   --gold-light: #fdf8eb;
   --gold-border: rgba(197, 160, 89, 0.35);
 
-  --bg-dark: #0b110e;
-  --bg-dark-card: #121c17;
+  --bg-dark: #091a13;
+  --bg-dark-card: #11221a;
   --bg-body: #fafafc;
   --bg-card: #ffffff;
 
   --text-main: #111116;
   --text-muted: #64748b;
   --text-light: #f8fafc;
-  --text-light-muted: #94a3b8;
+  --text-light-muted: #cbd5e1;
 
   --border-light: #e8ece9;
   --border-dark: rgba(197, 160, 89, 0.2);
@@ -36,9 +34,18 @@
   --danger: #dc2626;
   --success: #16a34a;
 
-  /* ================= TIPOGRAFÍA ================= */
+  /* ================= VARIABLES DE COMPATIBILIDAD ================= */
+  --green: #14532d;
+  --green-dim: rgba(20, 83, 45, 0.12);
+  --bg-soft: #f4f7f5;
+  --bg-elevated: #ffffff;
+  --bg-elevated-2: #edf3f0;
+  --border: #e2e8e5;
+  --border-strong: #cbd5e1;
+  --font-display: 'Cinzel', Georgia, serif;
+  --font-body: 'Montserrat', -apple-system, sans-serif;
   --font-serif: 'Cinzel', Georgia, serif;
-  --font-sans: 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans: 'Montserrat', -apple-system, sans-serif;
 
   /* ================= DIMENSIONES & SOMBRAS ================= */
   --nav-height: 74px;
@@ -47,7 +54,7 @@
   --radius-lg: 20px;
   --shadow-sm: 0 4px 15px rgba(0, 0, 0, 0.04);
   --shadow-card: 0 10px 30px rgba(15, 57, 35, 0.06);
-  --shadow-luxury: 0 20px 45px rgba(0, 0, 0, 0.12);
+  --shadow-luxury: 0 20px 45px rgba(0, 0, 0, 0.16);
   --transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -134,7 +141,6 @@ a {
   border-bottom: 1px solid var(--border-light);
   display: flex;
   align-items: center;
-  transition: var(--transition);
 }
 
 .nav-container-flex {
@@ -151,17 +157,13 @@ a {
 }
 
 .brand-logo-img {
-  height: 42px;
+  height: 44px;
   width: auto;
   object-fit: contain;
 }
 
 .brand-text {
-  font-family: var(--font-serif);
-  font-size: 21px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  color: var(--green-dark);
+  display: none !important;
 }
 
 .nav-links {
@@ -247,6 +249,38 @@ a {
   background: var(--green-light);
 }
 
+/* Sesión de usuario logueado en Navbar */
+.user-menu {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  white-space: nowrap !important;
+}
+
+.user-name {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: var(--green-dark) !important;
+}
+
+.logout-link,
+#auth-slot button {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  padding: 6px 14px !important;
+  border: 1px solid #dc2626 !important;
+  color: #dc2626 !important;
+  border-radius: 20px !important;
+  background: transparent !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.logout-link:hover,
+#auth-slot button:hover {
+  background: #fee2e2 !important;
+}
+
 .nav-toggle {
   display: none;
   background: none;
@@ -256,10 +290,10 @@ a {
   cursor: pointer;
 }
 
-/* ================= HERO SECTION EDITORIAL ROLEX / CHRONOVIA ================= */
+/* ================= HERO PRINCIPAL ================= */
 .rolex-hero {
   position: relative;
-  min-height: 82vh;
+  min-height: 80vh;
   display: flex;
   align-items: center;
   background-color: var(--bg-dark);
@@ -307,7 +341,6 @@ a {
   color: #ffffff;
   margin: 0 0 20px;
   font-weight: 700;
-  letter-spacing: 0.02em;
 }
 
 .hero-subtitle {
@@ -429,11 +462,7 @@ a {
   transition: var(--transition);
 }
 
-.cat-card-luxury:hover .cat-card-arrow {
-  transform: translateX(4px);
-}
-
-/* ================= SECCIÓN DESTACADOS / SHOWCASE ================= */
+/* ================= BANNER INTERCALADO TIPO HERO (ESTILO SALÓN DE BELLEZA) ================= */
 .showcase-section {
   padding: 75px 0 90px;
   background: #ffffff;
@@ -458,149 +487,165 @@ a {
   margin: 0 auto;
 }
 
-/* Contenedor que llena js/productos.js */
 .featured-showcase-container {
   display: flex;
   flex-direction: column;
-  gap: 36px;
+  gap: 40px;
 }
 
-/* Formato Hero Banner / Fila destacada */
+/* FILA 1 (IMPAR): Reloj a la derecha, sombra y texto a la izquierda */
 .product-hero-banner,
 .rolex-feature-row {
   position: relative;
-  min-height: 400px;
+  min-height: 440px;
   border-radius: var(--radius-lg);
   overflow: hidden;
-  background: #fbfdfc;
-  border: 1px solid var(--border-light);
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: center;
-  padding: 36px 44px;
-  gap: 40px;
-  box-shadow: var(--shadow-sm);
+  background-color: #081a12 !important;
+  background-repeat: no-repeat !important;
+  background-size: contain !important;
+  background-position: right 6% center !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 50px 60px !important;
+  box-shadow: var(--shadow-luxury);
+  border: 1px solid var(--border-dark);
   transition: var(--transition);
 }
 
 .product-hero-banner:hover,
 .rolex-feature-row:hover {
   transform: translateY(-4px);
-  border-color: rgba(20, 83, 45, 0.25);
-  box-shadow: var(--shadow-luxury);
+  box-shadow: 0 25px 55px rgba(9, 26, 19, 0.3);
 }
 
-.rolex-feature-media,
-.product-hero-media-wrap {
-  position: relative;
-  width: 100%;
-  height: 320px;
-  background: radial-gradient(circle at center, #ffffff 0%, #edf2ee 100%);
-  border-radius: var(--radius-md);
-  border: 1px solid #e2e8e5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.rolex-feature-img,
-.product-hero-img {
-  max-width: 82%;
-  max-height: 82%;
-  object-fit: contain;
-  transition: transform 0.4s ease;
-}
-
-.rolex-feature-row:hover .rolex-feature-img,
-.product-hero-banner:hover .product-hero-img {
-  transform: scale(1.06);
-}
-
-.feature-tag {
+/* Degradado sombreado para garantizar legibilidad del texto */
+.product-hero-overlay {
   position: absolute;
-  top: 14px;
-  left: 14px;
-  background: rgba(9, 26, 19, 0.9);
-  color: var(--gold-accent);
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  border: 1px solid var(--gold-border);
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(8, 26, 18, 0.98) 0%,
+    rgba(8, 26, 18, 0.92) 48%,
+    rgba(8, 26, 18, 0.35) 75%,
+    transparent 100%
+  ) !important;
+  z-index: 1;
 }
 
-.rolex-feature-text,
-.product-hero-inner {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+.product-hero-inner,
+.rolex-feature-text {
+  position: relative;
+  z-index: 2;
+  max-width: 520px;
+  margin-right: auto;
+  margin-left: 0;
+  text-align: left;
+  color: #ffffff !important;
 }
 
-.rolex-meta,
-.product-hero-category {
+.product-hero-category,
+.rolex-meta {
+  display: inline-block;
   font-size: 11.5px;
-  letter-spacing: 0.12em;
-  color: var(--gold-hover);
+  letter-spacing: 0.16em;
+  color: var(--gold-accent) !important;
   font-weight: 700;
   text-transform: uppercase;
+  margin-bottom: 10px;
 }
 
-.rolex-title,
-.product-hero-title {
+.product-hero-title,
+.rolex-title {
   font-family: var(--font-serif);
-  font-size: clamp(24px, 3vw, 32px);
-  color: var(--green-dark);
+  font-size: clamp(26px, 3.2vw, 36px);
+  color: #ffffff !important;
+  margin: 0 0 14px;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.15;
 }
 
-.rolex-desc,
-.product-hero-desc {
-  font-size: 14.5px;
+.product-hero-desc,
+.rolex-desc {
+  font-size: 15px;
   line-height: 1.7;
-  color: #4b5563;
+  color: var(--text-light-muted) !important;
+  margin: 0 0 26px;
 }
 
-.rolex-pricing-action,
-.product-hero-cta {
+.product-hero-cta,
+.rolex-pricing-action {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-top: 16px;
-  padding-top: 18px;
-  border-top: 1px solid var(--border-light);
+  gap: 22px;
   flex-wrap: wrap;
-  gap: 12px;
 }
 
-.price-amount,
-.product-hero-price .price-val {
-  font-size: 24px;
+.product-hero-price,
+.price-amount {
+  font-size: 26px;
   font-weight: 700;
-  color: var(--green-primary);
+  color: #ffffff !important;
+  display: flex;
+  align-items: baseline;
 }
 
-.btn-rolex-explore,
-.btn-hero-order {
+.price-currency {
+  font-size: 16px;
+  color: var(--gold-accent) !important;
+  margin-right: 4px;
+}
+
+.btn-hero-order,
+.btn-rolex-explore {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: var(--green-primary);
-  color: #ffffff;
-  padding: 12px 24px;
+  background: var(--gold-accent);
+  color: var(--green-dark);
+  font-weight: 700;
+  font-size: 13.5px;
+  padding: 13px 28px;
   border-radius: var(--radius-sm);
-  font-size: 13px;
-  font-weight: 600;
+  text-decoration: none;
   transition: var(--transition);
-  border: 1px solid var(--green-primary);
+  box-shadow: 0 4px 15px rgba(197, 160, 89, 0.35);
 }
 
-.btn-rolex-explore:hover,
-.btn-hero-order:hover {
-  background: var(--green-hover);
-  transform: translateX(3px);
+.btn-hero-order:hover,
+.btn-rolex-explore:hover {
+  background: var(--gold-hover);
+  transform: translateY(-2px);
+}
+
+/* FILA 2 (PAR / INTERCALADA): Reloj a la izquierda, sombra y texto a la derecha */
+.featured-showcase-container > .product-hero-banner:nth-child(even),
+.featured-showcase-container > .rolex-feature-row:nth-child(even),
+.product-hero-banner.reversed,
+.rolex-feature-row.reversed {
+  background-position: left 6% center !important;
+  justify-content: flex-end !important;
+}
+
+.featured-showcase-container > .product-hero-banner:nth-child(even) .product-hero-overlay,
+.featured-showcase-container > .rolex-feature-row:nth-child(even) .product-hero-overlay,
+.product-hero-banner.reversed .product-hero-overlay,
+.rolex-feature-row.reversed .product-hero-overlay {
+  background: linear-gradient(
+    270deg,
+    rgba(8, 26, 18, 0.98) 0%,
+    rgba(8, 26, 18, 0.92) 48%,
+    rgba(8, 26, 18, 0.35) 75%,
+    transparent 100%
+  ) !important;
+}
+
+.featured-showcase-container > .product-hero-banner:nth-child(even) .product-hero-inner,
+.featured-showcase-container > .rolex-feature-row:nth-child(even) .product-hero-inner,
+.product-hero-banner.reversed .product-hero-inner,
+.rolex-feature-row.reversed .product-hero-inner {
+  margin-left: auto !important;
+  margin-right: 0 !important;
+  text-align: left;
 }
 
 .showcase-cta-wrap {
@@ -626,7 +671,7 @@ a {
   color: #ffffff;
 }
 
-/* ================= GRID ESTÁNDAR DE TARJETAS (CATÁLOGO) ================= */
+/* ================= GRID DE CATÁLOGO (CATALOGO.HTML) ================= */
 .product-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
@@ -745,7 +790,7 @@ a {
   color: #ffffff;
 }
 
-/* ================= BANNER INNOVACIÓN: CRONOAI ================= */
+/* ================= BANNER CRONOAI ================= */
 .cronoai-banner {
   background: radial-gradient(circle at 75% 50%, rgba(20, 83, 45, 0.4) 0%, rgba(9, 26, 19, 0.98) 70%), var(--bg-dark);
   color: #ffffff;
@@ -1100,88 +1145,51 @@ a {
   color: var(--text-muted);
 }
 
-/* ================= DETALLE DE PRODUCTO (PRODUCTO.HTML) ================= */
-.detalle-wrap {
-  padding: 50px 0 90px;
-}
-
-.detalle-grid {
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 50px;
-  align-items: center;
-}
-
-.detalle-stage {
-  position: relative;
-  width: 100%;
-  height: 480px;
-  background: radial-gradient(circle at center, #ffffff 0%, #edf1ee 100%);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border-light);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-}
-
-.detalle-stage img {
-  max-width: 85%;
-  max-height: 85%;
-  object-fit: contain;
-}
-
-.detalle-info h1 {
-  font-family: var(--font-serif);
-  font-size: clamp(28px, 4vw, 42px);
-  color: var(--green-dark);
-  margin-bottom: 12px;
-}
-
-.detalle-precio {
-  font-size: 26px;
-  font-weight: 700;
-  color: var(--green-primary);
-  margin-bottom: 20px;
-}
-
-.detalle-descripcion {
-  font-size: 15px;
-  line-height: 1.8;
-  color: var(--text-muted);
-  margin-bottom: 30px;
-}
-
-/* ================= CHAT CON CRONOAI (AGENTE-IA.HTML) ================= */
+/* ================= INTERFAZ CRONOAI (AGENTE-IA.HTML) ================= */
 .chat-wrap {
   min-height: calc(100vh - var(--nav-height));
   display: flex;
   justify-content: center;
+  align-items: center;
   padding: 40px 20px;
-  background: var(--bg-body);
+  background: radial-gradient(circle at top, rgba(20, 83, 45, 0.08), transparent 45%), var(--bg-body);
 }
 
 .chat-card {
   width: 100%;
-  max-width: 660px;
+  max-width: 680px;
   display: flex;
   flex-direction: column;
   background: #ffffff;
   border: 1px solid var(--border-light);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   overflow: hidden;
   height: 720px;
-  box-shadow: var(--shadow-card);
+  box-shadow: 0 15px 45px rgba(15, 57, 35, 0.08);
 }
 
 .chat-header {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   padding: 18px 24px;
   border-bottom: 1px solid var(--border-light);
-  background: #fafbfb;
+  background: #fbfdfc;
+}
+
+.chat-header-text strong {
+  display: block;
+  font-size: 15px;
+  font-family: var(--font-serif);
+  color: var(--green-dark);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.chat-header-text span {
+  font-size: 12.5px;
+  color: var(--success);
+  font-weight: 600;
 }
 
 .chat-messages {
@@ -1190,21 +1198,24 @@ a {
   padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
+  background: #fafcfb;
 }
 
 .msg {
-  max-width: 85%;
-  padding: 12px 18px;
-  border-radius: 14px;
+  max-width: 82%;
+  padding: 13px 18px;
+  border-radius: 16px;
   font-size: 14.5px;
-  line-height: 1.5;
+  line-height: 1.55;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
 }
 
 .msg-bot {
   align-self: flex-start;
-  background: #f1f5f3;
+  background: #ffffff;
   color: var(--text-main);
+  border: 1px solid var(--border-light);
   border-bottom-left-radius: 4px;
 }
 
@@ -1223,30 +1234,34 @@ a {
 .chat-options {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 9px;
   align-self: flex-start;
   max-width: 95%;
+  margin-top: 4px;
 }
 
 .chat-option-btn {
-  padding: 9px 16px;
+  padding: 9px 18px;
   border: 1.5px solid var(--green-primary);
   color: var(--green-primary);
   background: #ffffff;
-  border-radius: 20px;
+  border-radius: 25px;
   font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;
   transition: var(--transition);
+  box-shadow: 0 2px 6px rgba(20, 83, 45, 0.06);
 }
 
 .chat-option-btn:hover:not(:disabled) {
   background: var(--green-primary);
   color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(20, 83, 45, 0.25);
 }
 
 .chat-option-btn:disabled {
-  opacity: 0.4;
+  opacity: 0.35;
   cursor: default;
 }
 
@@ -1257,27 +1272,30 @@ a {
 .chat-resultados {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
+  width: 100%;
 }
 
 .chat-resultado-card {
   display: flex;
-  gap: 14px;
+  gap: 16px;
   border: 1px solid var(--border-light);
   background: #ffffff;
-  padding: 14px;
-  border-radius: var(--radius-sm);
+  padding: 16px;
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
 }
 
 .chat-resultado-media {
-  width: 95px;
-  height: 95px;
+  width: 100px;
+  height: 100px;
   flex-shrink: 0;
   background: #f8faf9;
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
+  overflow: hidden;
 }
 
 .chat-resultado-media img {
@@ -1288,33 +1306,47 @@ a {
 
 .chat-resultado-info h4 {
   font-family: var(--font-serif);
-  font-size: 15px;
+  font-size: 16px;
   margin-bottom: 4px;
   color: var(--green-dark);
+}
+
+.chat-resultado-match {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--green-primary);
+  background: var(--green-light);
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-bottom: 6px;
 }
 
 .chat-resultado-precio {
   font-size: 15px;
   font-weight: 700;
   color: var(--green-primary);
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .chat-input {
   display: flex;
-  gap: 10px;
-  padding: 16px 20px;
+  gap: 12px;
+  padding: 16px 22px;
   border-top: 1px solid var(--border-light);
   background: #ffffff;
 }
 
 .chat-input input {
   flex: 1;
-  padding: 12px 18px;
+  padding: 12px 20px;
   border: 1px solid var(--border-light);
-  border-radius: 25px;
+  border-radius: 30px;
   font-size: 14px;
   outline: none;
+  background: #fbfdfc;
+  color: var(--text-main);
 }
 
 .chat-input input:focus {
@@ -1332,24 +1364,15 @@ a {
   justify-content: center;
   border: none;
   cursor: pointer;
+  transition: var(--transition);
 }
 
-/* ================= RESPONSIVO (MÓVILES Y TABLETS) ================= */
-@media (max-width: 992px) {
-  .categories-grid {
-    grid-template-columns: 1fr;
-  }
-  .cronoai-banner-grid {
-    grid-template-columns: 1fr;
-  }
-  .about-grid {
-    grid-template-columns: 1fr;
-  }
-  .detalle-grid {
-    grid-template-columns: 1fr;
-  }
+.chat-send:hover {
+  background: var(--green-hover);
+  transform: scale(1.05);
 }
 
+/* ================= RESPONSIVO (MÓVILES) ================= */
 @media (max-width: 860px) {
   .nav-links {
     position: fixed;
@@ -1368,7 +1391,7 @@ a {
   }
 
   .nav-links.open {
-    max-height: 300px;
+    max-height: 320px;
   }
 
   .nav-links a {
@@ -1381,16 +1404,36 @@ a {
     display: block;
   }
 
+  /* Banners en móviles */
+  .product-hero-banner,
   .rolex-feature-row,
-  .product-hero-banner {
-    grid-template-columns: 1fr;
-    padding: 24px;
+  .featured-showcase-container > .product-hero-banner:nth-child(even),
+  .featured-showcase-container > .rolex-feature-row:nth-child(even) {
+    background-position: center bottom 20px !important;
+    background-size: auto 190px !important;
+    padding: 35px 22px 230px !important;
+    min-height: 460px !important;
   }
 
-  .rolex-feature-media {
-    height: 260px;
+  .product-hero-overlay,
+  .featured-showcase-container > .product-hero-banner:nth-child(even) .product-hero-overlay {
+    background: linear-gradient(
+      180deg,
+      rgba(8, 26, 18, 0.98) 0%,
+      rgba(8, 26, 18, 0.88) 55%,
+      rgba(8, 26, 18, 0.25) 100%
+    ) !important;
   }
 
+  .product-hero-inner,
+  .featured-showcase-container > .product-hero-banner:nth-child(even) .product-hero-inner {
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .categories-grid,
+  .cronoai-banner-grid,
+  .about-grid,
   .footer-grid {
     grid-template-columns: 1fr;
   }
@@ -1398,22 +1441,8 @@ a {
   .top-notice-bar {
     display: none;
   }
-}
 
-@media (max-width: 560px) {
-  .hero-title {
-    font-size: 34px;
-  }
-  .hero-actions {
-    flex-direction: column;
-  }
-  .btn-hero-primary,
-  .btn-hero-secondary {
-    width: 100%;
-    justify-content: center;
-  }
-  .about-features {
-    grid-template-columns: 1fr;
-    text-align: center;
+  .chat-card {
+    height: calc(100vh - var(--nav-height) - 40px);
   }
 }
