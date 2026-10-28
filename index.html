@@ -3,67 +3,107 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Relojería CRONOS — Excelencia y Precisión</title>
+  <title>CRONOS — Relojería Exclusiva & Asistente Inteligente</title>
   
-  <!-- Tipografías de alta gama -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
   <link rel="stylesheet" href="css/styles.css">
 </head>
-<body class="light-theme">
+<body>
 
-  <!-- ===================== NAVBAR ===================== -->
+  <!-- ================= TOP NOTICE BAR ================= -->
+  <div class="top-notice-bar">
+    <div class="container top-notice-content">
+      <span>Envíos a toda Bolivia | Pedidos rápidos y directos por <strong>WhatsApp</strong></span>
+      <span>Atención directa: <strong>+591 73158851</strong></span>
+    </div>
+  </div>
+
+  <!-- ================= NAVBAR ================= -->
   <header class="navbar">
     <div class="container nav-container-flex">
       <a href="index.html" class="brand">
-        <img src="img/logo-cronos.png" alt="Cronos - Tienda de relojes" class="brand-logo-img">
+        <img src="img/logo-cronos.png" alt="CRONOS" class="brand-logo-img">
         <span class="brand-text">CRONOS</span>
       </a>
 
       <nav class="nav-links">
         <a href="index.html" class="active">Inicio</a>
         <a href="catalogo.html">Catálogo</a>
+        <a href="#colecciones">Colecciones</a>
         <a href="#nosotros">Nosotros</a>
         <a href="#contacto">Contacto</a>
       </nav>
 
       <div class="nav-actions">
-        <div id="auth-slot"><a href="login.html" class="btn-auth-link">Ingresar</a></div>
+        <a href="agente-ia.html" class="btn-nav-cronoai">
+          <span>✨ Probar CRONOAI</span>
+        </a>
+        <div id="auth-slot">
+          <a href="login.html" class="btn-auth-link">Ingresar</a>
+        </div>
         <button class="nav-toggle" aria-label="Abrir menú">&#9776;</button>
       </div>
     </div>
   </header>
 
-  <!-- ===================== HERO EDITORIAL ROLEX STYLE ===================== -->
+  <!-- ================= HERO EDITORIAL ROLEX / CHRONOVIA ================= -->
   <section class="rolex-hero">
     <div class="rolex-hero-overlay"></div>
     <div class="container rolex-hero-content">
-      <span class="hero-eyebrow">ALTA RELOJERÍA Y TRADICIÓN</span>
+      <span class="hero-eyebrow">// ALTA RELOJERÍA DIGITAL & PRECISIÓN</span>
       <h1 class="hero-title">El Dominio del Tiempo</h1>
       <p class="hero-subtitle">
-        Descubre un universo de ingeniería suiza y elegancia atemporal. Cada pieza cuenta una historia de excelencia, diseñada para perdurar por generaciones.
+        Descubre un universo de ingeniería y elegancia atemporal. Cada pieza cuenta una historia de distinción, diseñada para perdurar. Explora los modelos con visualización multiángulo y déjate orientar por nuestro asesor virtual inteligente.
       </p>
       <div class="hero-actions">
-        <a href="catalogo.html" class="btn-hero-primary">Explorar Colección</a>
-        <a href="#destacados" class="btn-hero-secondary">Modelos Destacados</a>
+        <a href="catalogo.html" class="btn-hero-primary">Explorar Catálogo →</a>
+        <a href="agente-ia.html" class="btn-hero-secondary">Consultar con CRONOAI</a>
       </div>
     </div>
   </section>
 
-  <!-- ===================== PRODUCTOS DESTACADOS ===================== -->
-  <section class="section showcase-section" id="destacados">
+  <!-- ================= CATEGORÍAS RÁPIDAS (ESTILO CHRONOVIA) ================= -->
+  <section class="categories-strip" id="colecciones">
+    <div class="container categories-grid">
+      <a href="catalogo.html?categoria=hombre" class="cat-card-luxury">
+        <div class="cat-card-info">
+          <h3>Colección Varón</h3>
+          <span>Cronógrafos & Deportivos</span>
+        </div>
+        <div class="cat-card-arrow">→</div>
+      </a>
+      <a href="catalogo.html?categoria=mujer" class="cat-card-luxury">
+        <div class="cat-card-info">
+          <h3>Colección Dama</h3>
+          <span>Clásicos & Elegantes</span>
+        </div>
+        <div class="cat-card-arrow">→</div>
+      </a>
+      <a href="catalogo.html?estilo=Deportivo" class="cat-card-luxury">
+        <div class="cat-card-info">
+          <h3>Línea Deportiva</h3>
+          <span>Silicona & Goma Resistente</span>
+        </div>
+        <div class="cat-card-arrow">→</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ================= SECCIÓN DESTACADOS ================= -->
+  <section class="showcase-section" id="destacados">
     <div class="container">
       <div class="showcase-header text-center">
         <span class="eyebrow">PIEZAS EMBLEMÁTICAS</span>
         <h2 class="section-title">Modelos de Distinción</h2>
         <p class="section-subtitle">
-          Selección de relojes insignia disponibles para inspección tridimensional detallada.
+          Selección de relojes insignia disponibles con visualización multiángulo interactiva para apreciar cada detalle.
         </p>
       </div>
 
-      <!-- Contenedor donde js/productos.js inyectará las filas estilo Rolex -->
+      <!-- Contenedor donde js/productos.js inyecta los productos destacados -->
       <div class="featured-showcase-container" id="product-grid" data-destacados="true">
         <!-- Generado dinámicamente -->
       </div>
@@ -76,8 +116,46 @@
     </div>
   </section>
 
-  <!-- ===================== SECCIÓN NOSOTROS ===================== -->
-  <section class="section about-section" id="nosotros">
+  <!-- ================= BANNER INNOVACIÓN: CRONOAI ================= -->
+  <section class="cronoai-banner">
+    <div class="container cronoai-banner-grid">
+      <div>
+        <span class="cronoai-badge">Innovación Tecnológica BTH</span>
+        <h2>¿No sabes qué reloj elegir? Déjaselo a CRONOAI</h2>
+        <p>Nuestro asistente inteligente analiza tus preferencias, estilo de vestimenta y presupuesto en bolivianos mediante un cuestionario guiado de 6 preguntas para sugerirte la pieza exacta disponible en tienda.</p>
+        
+        <div class="cronoai-steps">
+          <div class="cronoai-step-item">
+            <span class="cronoai-step-num">1</span>
+            <span>Elige tu estilo</span>
+          </div>
+          <div class="cronoai-step-item">
+            <span class="cronoai-step-num">2</span>
+            <span>Tipo de correa</span>
+          </div>
+          <div class="cronoai-step-item">
+            <span class="cronoai-step-num">3</span>
+            <span>Recomendación inmediata</span>
+          </div>
+        </div>
+
+        <a href="agente-ia.html" class="btn-hero-primary">Comenzar Test Asistido ✨</a>
+      </div>
+
+      <div class="cronoai-preview-box">
+        <div class="chat-bubble-mock">
+          <small style="color:var(--gold-accent); display:block; margin-bottom:4px; font-weight:700;">CRONOAI • Asistente Virtual</small>
+          "¡Hola! Te recomiendo este modelo cronógrafo con correa de goma negra resistente al agua, perfecto para tu presupuesto."
+        </div>
+        <div style="text-align:center;">
+          <a href="agente-ia.html" style="color:var(--text-light); text-decoration:none; font-size:13px; font-weight:600;">Iniciar conversación con el asesor →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SECCIÓN NOSOTROS ================= -->
+  <section class="about-section" id="nosotros">
     <div class="container">
       <div class="about-grid">
         <div class="about-content">
@@ -87,7 +165,7 @@
             Para <strong>Cronos</strong>, un reloj es mucho más que un mecanismo: es el reflejo de tus logros, tu personalidad y tu legado.
           </p>
           <p class="about-text">
-            Ofrecemos colecciones rigurosamente autenticadas, combinando la atención boutique de primer nivel con la última tecnología de visualización interactiva en 360 grados, permitiéndote apreciar cada ángulo antes de adquirir tu próxima joya de muñeca.
+            Ofrecemos colecciones rigurosamente seleccionadas, combinando la atención personalizada de primer nivel con tecnología de visualización multiángulo en alta resolución y asistencia inteligente, permitiéndote apreciar cada acabado antes de coordinar tu compra.
           </p>
           <div class="about-features">
             <div class="feature-item">
@@ -95,12 +173,12 @@
               <span class="feature-label">Garantía de Calidad</span>
             </div>
             <div class="feature-item">
-              <span class="feature-number">360°</span>
-              <span class="feature-label">Modelado Interactivo</span>
+              <span class="feature-number">5 Vistas</span>
+              <span class="feature-label">Galería Multiángulo</span>
             </div>
             <div class="feature-item">
-              <span class="feature-number">1 a 1</span>
-              <span class="feature-label">Atención Directa</span>
+              <span class="feature-number">24/7</span>
+              <span class="feature-label">Asistencia CRONOAI</span>
             </div>
           </div>
         </div>
@@ -116,14 +194,14 @@
     </div>
   </section>
 
-  <!-- ===================== SECCIÓN CONTACTO ===================== -->
-  <section class="section contact-section" id="contacto">
+  <!-- ================= SECCIÓN CONTACTO ================= -->
+  <section class="contact-section" id="contacto">
     <div class="container">
       <div class="contact-header text-center">
         <span class="eyebrow">ATENCIÓN DIRECTA</span>
         <h2 class="section-title">Coordina tu Adquisición</h2>
         <p class="section-subtitle">
-          Estamos a tu servicio para resolver inquietudes técnicas, verificar disponibilidad o coordinar entregas seguras.
+          Estamos a tu servicio para resolver inquietudes técnicas, verificar disponibilidad o coordinar entregas seguras en toda Bolivia.
         </p>
       </div>
 
@@ -152,13 +230,13 @@
     </div>
   </section>
 
-  <!-- ===================== FOOTER ===================== -->
+  <!-- ================= FOOTER ================= -->
   <footer class="footer">
     <div class="container">
       <div class="footer-grid">
         <div class="footer-col brand-col">
           <span class="brand-name">CRONOS</span>
-          <p>Relojería exclusiva. Selección curada con los más altos estándares de manufactura y precisión.</p>
+          <p>Relojería especializada en piezas exclusivas. Fusionamos la elegancia de la tradición relojera con la última tecnología de asistencia por Inteligencia Artificial y visualización multiángulo.</p>
         </div>
         <div class="footer-col">
           <p class="footer-heading">Navegación</p>
@@ -168,24 +246,24 @@
           <a href="#contacto">Contacto</a>
         </div>
         <div class="footer-col">
-          <p class="footer-heading">Contacto & Ayuda</p>
+          <p class="footer-heading">Contacto & Acceso</p>
           <a href="https://wa.me/59173158851" target="_blank">Atención al Cliente</a>
           <a href="agente-ia.html">Asesor Inteligente</a>
           <a href="admin/login.html">Acceso Administrador</a>
         </div>
       </div>
       <div class="footer-bottom">
-        &copy; 2026 Cronos. Todos los derechos reservados.
+        &copy; 2026 Relojería CRONOS. Todos los derechos reservados. Proyecto de Grado BTH.
       </div>
     </div>
   </footer>
 
-  <!-- ===================== BOTÓN FLOTANTE ASESOR IA ===================== -->
+  <!-- ================= BOTÓN FLOTANTE ASESOR IA ================= -->
   <a href="agente-ia.html" class="ai-float-btn">
     <span class="ai-spark">✨</span>
     <span class="ai-float-text">
       <strong>¿Buscás asesoramiento?</strong>
-      <span>Consulta a tu asistente IA</span>
+      <span>Consulta con CRONOAI</span>
     </span>
   </a>
 
