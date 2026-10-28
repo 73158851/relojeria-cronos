@@ -24,11 +24,14 @@
   <!-- ================= NAVBAR ================= -->
   <header class="navbar">
     <div class="container nav-container-flex">
-      <a href="index.html" class="brand">
-        <img src="img/logo-cronos.png" alt="CRONOS" class="brand-logo-img">
-      </a>
+      <div class="nav-brand-group">
+        <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menú">☰</button>
+        <a href="index.html" class="brand">
+          <img src="img/logo-cronos.png" alt="CRONOS" class="brand-logo-img">
+        </a>
+      </div>
 
-      <nav class="nav-links">
+      <nav class="nav-links" id="nav-links">
         <a href="index.html" class="active">Inicio</a>
         <a href="catalogo.html">Catálogo</a>
         <a href="#colecciones">Colecciones</a>
@@ -43,7 +46,6 @@
         <div id="auth-slot">
           <a href="login.html" class="btn-auth-link">Ingresar</a>
         </div>
-        <button class="nav-toggle" aria-label="Abrir menú">☰</button>
       </div>
     </div>
   </header>
@@ -91,7 +93,7 @@
     </div>
   </section>
 
-  <!-- ================= SECCIÓN DESTACADOS (INTERCALADOS TIPO HERO / SALÓN) ================= -->
+  <!-- ================= SECCIÓN DESTACADOS ================= -->
   <section class="showcase-section" id="destacados">
     <div class="container">
       <div class="showcase-header text-center">
@@ -229,7 +231,7 @@
     </div>
   </section>
 
-  <!-- ================= FOOTER ================= -->
+  <!-- ================= FOOTER COMPACTO ================= -->
   <footer class="footer">
     <div class="container">
       <div class="footer-grid">
@@ -248,7 +250,6 @@
           <p class="footer-heading">Contacto & Acceso</p>
           <a href="https://wa.me/59173158851" target="_blank">Atención al Cliente</a>
           <a href="agente-ia.html">Asesor Inteligente</a>
-          <a href="admin/login.html">Acceso Administrador</a>
         </div>
       </div>
       <div class="footer-bottom">
@@ -257,11 +258,11 @@
     </div>
   </footer>
 
-  <!-- ================= BOTÓN FLOTANTE ASESOR IA ================= -->
+  <!-- ================= BOTÓN FLOTANTE COMPACTO ================= -->
   <a href="agente-ia.html" class="ai-float-btn">
     <span class="ai-spark">✨</span>
     <span class="ai-float-text">
-      <strong>¿Buscás asesoramiento?</strong>
+      <strong>Asesor IA</strong>
       <span>Consulta con CRONOAI</span>
     </span>
   </a>
