@@ -52,6 +52,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   let inventario = [];
   let paginaActual = 1;
   const itemsPorPagina = 10;
+  let columnasRealesVentas = null;
 
   function activarVista(vistaActiva, navActivo) {
     todasLasVistas.forEach(v => { if (v) v.classList.remove("active"); });
@@ -336,14 +337,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   // ---------------------------------------------------------
-  // MÓDULO 2: VENTAS (Corregido y Compatible)
+  // MÓDULO 2: VENTAS (Inspección dinámica y guardado seguro)
   // ---------------------------------------------------------
   async function cargarVentas() {
     const tbody = document.getElementById("tbody-ventas");
     if (!tbody || !client) return;
     tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px;">Cargando ventas...</td></tr>`;
 
-    // Consulta directa para evitar error 400 por claves foráneas ausentes
     const { data, error } = await client.from("ventas").select("*");
 
     if (error) {
@@ -357,12 +357,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
-    // Ordenamiento por fecha
+    // Guardamos las columnas existentes de la tabla para usarlas al insertar
+    columnasRealesVentas = Object.keys(data[0]);
+
     data.sort((a, b) => new Date(b.fecha || b.fecha_venta || b.created_at || 0) - new Date(a.fecha || a.fecha_venta || a.created_at || 0));
 
     tbody.innerHTML = data.map(v => {
-      const fechaVal = v.fecha || v.fecha_venta || v.created_at;
-      const fecha = fechaVal ? new Date(fechaVal).toLocaleDateString("es-BO") : "-";
+      const fechaVal = v.fecha_venta || v.fecha || v.created_at;
+      const fecha = fechaVal ? new Date(fechaVal).toLocaleDateString("es-BO") : new Date().toLocaleDateString("es-BO");
 
       let relojNombre = v.reloj || v.nombre_reloj;
       if (!relojNombre && v.producto_id) {
@@ -374,6 +376,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       const cant = v.cantidad || v.cant || 1;
       const precioUnit = Number(v.precio_unitario || v.precio || 0);
       const total = Number(v.total || (cant * precioUnit) || 0).toFixed(2);
+      const clienteNombre = v.nombre_cliente || v.cliente || "Cliente mostrador";
+      const metodoPago = v.metodo_pago || v.pago || "Efectivo";
 
       return `
         <tr>
@@ -382,8 +386,8 @@ document.addEventListener("DOMContentLoaded", async () => {
           <td>${cant}</td>
           <td>Bs ${precioUnit.toFixed(2)}</td>
           <td><strong>Bs ${total}</strong></td>
-          <td>${v.nombre_cliente || v.cliente || "Cliente mostrador"}</td>
-          <td><span class="badge-pay">${v.metodo_pago || v.pago || "efectivo"}</span></td>
+          <td>${clienteNombre}</td>
+          <td><span class="badge-pay">${metodoPago}</span></td>
           <td>
             <button type="button" class="btn-table-del" onclick="eliminarVenta('${v.id}')">🗑️ Eliminar</button>
           </td>
@@ -436,33 +440,59 @@ document.addEventListener("DOMContentLoaded", async () => {
       const relojTexto = relojSelect.options[relojSelect.selectedIndex]?.text.split(" (Bs")[0] || "Reloj";
       const cant = parseInt(document.getElementById("venta-cantidad").value, 10) || 1;
       const precio = parseFloat(document.getElementById("venta-precio").value) || 0;
-      const cliente = document.getElementById("venta-cliente").value.trim();
+      const cliente = document.getElementById("venta-cliente").value.trim() || "Cliente directo";
       const tel = document.getElementById("venta-telefono").value.trim();
       const pago = document.getElementById("venta-pago").value;
 
-      const payloadVenta = {
-        reloj: relojTexto,
+      // Diccionario con los nombres estándar de columnas
+      const camposPosibles = {
         producto_id: relojId,
         cantidad: cant,
         precio_unitario: precio,
         total: cant * precio,
-        nombre_cliente: cliente || "Cliente directo",
-        cliente: cliente || "Cliente directo",
+        nombre_cliente: cliente,
         telefono_cliente: tel,
         metodo_pago: pago,
-        pago: pago,
-        fecha: new Date().toISOString().split("T")[0],
         fecha_venta: new Date().toISOString()
       };
 
-      const { error } = await client.from("ventas").insert([payloadVenta]);
+      let payloadFinal = {};
+
+      if (columnasRealesVentas && columnasRealesVentas.length > 0) {
+        // Filtramos para enviar ÚNICAMENTE las columnas que existen en tu base de datos
+        columnasRealesVentas.forEach(col => {
+          if (col === "id") return; // ID generado automáticamente
+          if (col in camposPosibles) {
+            payloadFinal[col] = camposPosibles[col];
+          } else if (col === "reloj") {
+            payloadFinal.reloj = relojTexto;
+          } else if (col === "pago") {
+            payloadFinal.pago = pago;
+          } else if (col === "fecha") {
+            payloadFinal.fecha = new Date().toISOString().split("T")[0];
+          }
+        });
+      } else {
+        // En caso de que la tabla estuviera vacía, se envía el conjunto estándar seguro (sin 'cliente')
+        payloadFinal = {
+          producto_id: relojId,
+          cantidad: cant,
+          precio_unitario: precio,
+          total: cant * precio,
+          nombre_cliente: cliente,
+          telefono_cliente: tel,
+          metodo_pago: pago
+        };
+      }
+
+      const { error } = await client.from("ventas").insert([payloadFinal]);
 
       if (error) {
         mostrarToast("Error: " + error.message);
         return;
       }
 
-      mostrarToast("Venta registrada con éxito");
+      mostrarToast("¡Venta registrada con éxito!");
       cerrarModalVenta();
       formVenta.reset();
       cargarVentas();
@@ -551,7 +581,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // ---------------------------------------------------------
-  // MÓDULO 4: CLIENTES (Consulta directa a tabla 'clientes')
+  // MÓDULO 4: CLIENTES
   // ---------------------------------------------------------
   async function cargarClientes() {
     const tbody = document.getElementById("tbody-clientes");
