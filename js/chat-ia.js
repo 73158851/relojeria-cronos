@@ -1,23 +1,17 @@
 /* =========================================================
-   chat-ia.js - CRONOAI con Cuestionario de 6 preguntas y Gemini
+   chat-ia.js - CRONOAI con Cuestionario Dinámico y Gemini
    ========================================================= */
 
-// =========================================================
-// ESPACIO PARA CONFIGURACIÓN DE LA API KEY O LLAMADA
-// =========================================================
-// La conexión con la IA se realiza a través de la Edge Function de Supabase ('chat-ia').
-// Asegúrate de tener configurada tu GEMINI_API_KEY en los Secrets de tu proyecto en Supabase.
-// Si necesitas pasar una clave de forma directa por código, puedes definirla aquí:
 window.CUSTOM_GEMINI_API_KEY = ""; 
 
 // -----------------------------------------------------------
-// Banco de preguntas de la pasarela (6 preguntas)
+// Configuración dinámica del cuestionario (6 preguntas)
 // -----------------------------------------------------------
-const PREGUNTAS_CRONOAI = [
+const PREGUNTAS_BASE = [
   {
     id: 'genero',
     texto: '¡Hola! 👋 Soy CRONOAI. Respondé estas 6 preguntas y te recomiendo el reloj ideal.\n\n1/6 ¿Para quién buscás el reloj?',
-    opciones: [
+    obtenerOpciones: () => [
       { label: 'Varón', valor: 'hombre' },
       { label: 'Mujer', valor: 'mujer' },
       { label: 'Unisex', valor: 'unisex' },
@@ -26,41 +20,67 @@ const PREGUNTAS_CRONOAI = [
   {
     id: 'estilo',
     texto: '2/6 ¿Qué estilo de reloj buscás?',
-    opciones: [
-      { label: 'De vestir', valor: 'De vestir' },
+    obtenerOpciones: () => [
       { label: 'Deportivo', valor: 'Deportivo' },
-      { label: 'Clásico', valor: 'Clásico' },
       { label: 'Elegante', valor: 'Elegante' },
+      { label: 'Clásico', valor: 'Clásico' },
+      { label: 'De vestir', valor: 'De vestir' },
     ],
   },
   {
     id: 'tipoCorrea',
     texto: '3/6 ¿Qué tipo de correa preferís?',
-    opciones: [
-      { label: 'Metal', valor: 'Metal' },
-      { label: 'Cuero', valor: 'Cuero' },
-    ],
+    obtenerOpciones: (respuestas) => {
+      // Si eligió estilo deportivo, la opción lógica principal es Goma
+      if (respuestas.estilo === 'Deportivo') {
+        return [
+          { label: 'Goma / Silicona', valor: 'Goma' },
+          { label: 'Metal', valor: 'Metal' },
+          { label: 'Cuero', valor: 'Cuero' },
+        ];
+      }
+      return [
+        { label: 'Metal', valor: 'Metal' },
+        { label: 'Cuero', valor: 'Cuero' },
+        { label: 'Goma', valor: 'Goma' },
+      ];
+    },
   },
   {
     id: 'colorCorrea',
     texto: '4/6 ¿Qué color de correa preferís?',
-    opcionesPorCorrea: {
-      Metal: [
-        { label: 'Dorado', valor: 'Dorado' },
+    obtenerOpciones: (respuestas) => {
+      const tipo = respuestas.tipoCorrea || 'Metal';
+      if (tipo === 'Goma') {
+        return [
+          { label: 'Negro', valor: 'Negro' },
+          { label: 'Verde', valor: 'Verde' },
+          { label: 'Naranja', valor: 'Naranja' },
+          { label: 'Azul', valor: 'Azul' },
+          { label: 'Rojo', valor: 'Rojo' },
+          { label: 'Rosado', valor: 'Rosado' },
+        ];
+      }
+      if (tipo === 'Cuero') {
+        return [
+          { label: 'Marrón', valor: 'Marrón' },
+          { label: 'Negro', valor: 'Negro' },
+          { label: 'Azul', valor: 'Azul' },
+          { label: 'Verde', valor: 'Verde' },
+        ];
+      }
+      // Metal
+      return [
         { label: 'Plateado', valor: 'Plateado' },
+        { label: 'Dorado', valor: 'Dorado' },
         { label: 'Negro', valor: 'Negro' },
-      ],
-      Cuero: [
-        { label: 'Marrón', valor: 'Marrón' },
-        { label: 'Negro', valor: 'Negro' },
-        { label: 'Azul', valor: 'Azul' },
-      ],
+      ];
     },
   },
   {
     id: 'esfera',
     texto: '5/6 ¿Qué diseño de esfera preferís?',
-    opciones: [
+    obtenerOpciones: () => [
       { label: 'Cronógrafo', valor: 'Cronógrafo' },
       { label: 'Con números', valor: 'Con números' },
       { label: 'Con detalles decorativos', valor: 'Con detalles' },
@@ -69,7 +89,7 @@ const PREGUNTAS_CRONOAI = [
   {
     id: 'presupuesto',
     texto: '6/6 ¿Cuál es tu presupuesto aproximado?',
-    opciones: [
+    obtenerOpciones: () => [
       { label: 'Bs. 100 - 300', valor: [100, 300] },
       { label: 'Bs. 301 - 600', valor: [301, 600] },
       { label: 'Bs. 601 - 900', valor: [601, 900] },
@@ -96,7 +116,7 @@ function obtenerClienteSupabase() {
 }
 
 // -----------------------------------------------------------
-// UI: pintar mensajes y opciones
+// Renderizado de mensajes y botones
 // -----------------------------------------------------------
 function pintarMensaje(texto, esUsuario = false) {
   const contenedor = document.getElementById('chat-messages');
@@ -140,46 +160,82 @@ function pintarOpciones(opciones, onElegir) {
 }
 
 // -----------------------------------------------------------
-// Flujo del cuestionario guiado
+// Flujo del cuestionario interactivo
 // -----------------------------------------------------------
 function hacerPregunta(indice) {
-  if (indice >= PREGUNTAS_CRONOAI.length) {
+  if (indice >= PREGUNTAS_BASE.length) {
     mostrarResultados();
     return;
   }
 
-  const pregunta = PREGUNTAS_CRONOAI[indice];
+  const pregunta = PREGUNTAS_BASE[indice];
   pintarMensaje(pregunta.texto, false);
 
-  const opciones = pregunta.opcionesPorCorrea
-    ? pregunta.opcionesPorCorrea[respuestasUsuario.tipoCorrea]
-    : pregunta.opciones;
+  const opciones = pregunta.obtenerOpciones(respuestasUsuario);
 
   pintarOpciones(opciones, (opcionElegida) => {
     pintarMensaje(opcionElegida.label, true);
     respuestasUsuario[pregunta.id] = opcionElegida.valor;
     indicePregunta = indice + 1;
-    setTimeout(() => hacerPregunta(indicePregunta), 350);
+    setTimeout(() => hacerPregunta(indicePregunta), 300);
   });
 }
 
 // -----------------------------------------------------------
-// Sistema de puntaje y recomendación de relojes
+// Cálculo de afinidad lógica de los relojes
 // -----------------------------------------------------------
+function normalizar(texto) {
+  return (texto || '').toString().toLowerCase().trim();
+}
+
 function calcularCoincidencia(producto, respuestas) {
   let puntos = 0;
 
-  if (producto.categoria === 'unisex' || producto.categoria === respuestas.genero) puntos += 20;
-  if (producto.estilo === respuestas.estilo) puntos += 20;
-  if (producto.tipo_correa === respuestas.tipoCorrea) puntos += 20;
-  if (producto.color_correa === respuestas.colorCorrea) puntos += 15;
-  if (producto.diseno_esfera === respuestas.esfera) puntos += 15;
+  // 1. Género (20 pts)
+  const catProd = normalizar(producto.categoria);
+  const genResp = normalizar(respuestas.genero);
+  if (catProd === 'unisex' || catProd === genResp) puntos += 20;
 
+  // 2. Estilo (25 pts)
+  const estiloProd = normalizar(producto.estilo);
+  const estiloResp = normalizar(respuestas.estilo);
+  if (estiloProd === estiloResp) {
+    puntos += 25;
+  } else if (estiloResp === 'deportivo' && (normalizar(producto.nombre).includes('deportivo') || normalizar(producto.tipo_correa).includes('goma') || normalizar(producto.tipo_correa).includes('silicona'))) {
+    puntos += 20;
+  }
+
+  // 3. Tipo de correa (20 pts)
+  const correaProd = normalizar(producto.tipo_correa);
+  const correaResp = normalizar(respuestas.tipoCorrea);
+  if (correaResp === 'goma' && (correaProd.includes('goma') || correaProd.includes('silicona'))) {
+    puntos += 20;
+  } else if (correaProd.includes(correaResp)) {
+    puntos += 20;
+  }
+
+  // 4. Color de correa (15 pts)
+  const colorProd = normalizar(producto.color_correa);
+  const colorResp = normalizar(respuestas.colorCorrea);
+  if (colorProd.includes(colorResp) || colorResp.includes(colorProd)) {
+    puntos += 15;
+  }
+
+  // 5. Diseño de esfera (10 pts)
+  const esferaProd = normalizar(producto.diseno_esfera);
+  const esferaResp = normalizar(respuestas.esfera);
+  if (esferaProd.includes(esferaResp) || esferaResp.includes(esferaProd)) {
+    puntos += 10;
+  }
+
+  // 6. Presupuesto (10 pts)
   const rango = respuestas.presupuesto;
-  const dentroDeRango = !rango || (producto.precio >= rango[0] && producto.precio <= rango[1]);
-  if (dentroDeRango) puntos += 10;
+  const precio = Number(producto.precio || 0);
+  if (!rango || (precio >= rango[0] && precio <= rango[1])) {
+    puntos += 10;
+  }
 
-  return puntos;
+  return Math.min(puntos, 100);
 }
 
 async function mostrarResultados() {
@@ -199,29 +255,22 @@ async function mostrarResultados() {
   indicador.remove();
 
   const rango = respuestasUsuario.presupuesto;
-  let candidatos = productos;
-  let dentroDePresupuesto = true;
+  let candidatos = productos.filter(p => (p.estado || 'Activo') === 'Activo');
 
+  let filtradosPresupuesto = candidatos;
   if (rango) {
-    const filtrados = productos.filter((p) => p.precio >= rango[0] && p.precio <= rango[1]);
-    if (filtrados.length > 0) {
-      candidatos = filtrados;
-    } else {
-      dentroDePresupuesto = false;
+    const enRango = candidatos.filter((p) => p.precio >= rango[0] && p.precio <= rango[1]);
+    if (enRango.length > 0) {
+      filtradosPresupuesto = enRango;
     }
   }
 
-  const puntuados = candidatos
+  const puntuados = filtradosPresupuesto
     .map((producto) => ({ producto, score: calcularCoincidencia(producto, respuestasUsuario) }))
     .sort((a, b) => b.score - a.score)
     .slice(0, 3);
 
-  if (!dentroDePresupuesto) {
-    pintarMensaje('No tenemos relojes disponibles en ese rango exacto, pero estas piezas se acercan bastante a tus gustos:', false);
-  } else {
-    pintarMensaje('¡Listo! Estos son los relojes que mejor coinciden con tus preferencias:', false);
-  }
-
+  pintarMensaje('¡Listo! Estos son los relojes que mejor coinciden con tus preferencias:', false);
   pintarResultados(puntuados);
   pintarMensaje('¿Tenés alguna otra duda o consulta sobre estas piezas? Podés seguir escribiéndome aquí abajo.', false);
 
@@ -255,8 +304,8 @@ function pintarResultados(puntuados) {
           <h4>${producto.nombre}</h4>
           <div class="chat-resultado-precio">Bs ${precioFormateado}</div>
           <div class="chat-resultado-acciones">
-            <a href="producto.html?id=${producto.id}" class="btn-detalle" style="padding: 7px 12px; font-size: 12px; text-decoration: none; background: #111; color: #fff; border-radius: 4px; text-align: center; font-weight: 600;">Ver Galería</a>
-            <a href="${linkWhatsApp}" target="_blank" class="btn-whatsapp" style="padding: 7px 12px; font-size: 12px; text-decoration: none; background: #25D366; color: #fff; border-radius: 4px; text-align: center; font-weight: 600;">WhatsApp</a>
+            <a href="producto.html?id=${producto.id}" class="btn-detalle" style="padding: 8px 12px; font-size: 12px; text-decoration: none; background: #111; color: #fff; border-radius: 4px; text-align: center; font-weight: 600;">Ver Galería</a>
+            <a href="${linkWhatsApp}" target="_blank" class="btn-whatsapp" style="padding: 8px 12px; font-size: 12px; text-decoration: none; background: #25D366; color: #fff; border-radius: 4px; text-align: center; font-weight: 600;">WhatsApp</a>
           </div>
         </div>
       </div>
@@ -268,57 +317,47 @@ function pintarResultados(puntuados) {
 }
 
 // -----------------------------------------------------------
-// Conexión con el Agente de IA (Gemini vía Supabase Edge Function)
+// Conexión libre con Gemini vía Edge Function
 // -----------------------------------------------------------
 async function construirPromptSistema(puntuados) {
   let productos = [];
-  if (typeof window.obtenerProductos === 'function') {
-    productos = await window.obtenerProductos();
-  } else {
-    const client = obtenerClienteSupabase();
-    if (client) {
-      const { data } = await client.from('productos').select('*');
-      productos = data || [];
-    }
+  const client = obtenerClienteSupabase();
+  if (client) {
+    const { data } = await client.from('productos').select('*');
+    productos = data || [];
   }
 
   const listaProductos = productos
-    .map((p) => `- ${p.nombre} | ${p.categoria} | Bs ${p.precio} | ${p.estilo || ''} | correa ${p.tipo_correa || ''} ${p.color_correa || ''} | esfera ${p.diseno_esfera || ''}`)
+    .map((p) => `- ${p.nombre} | ${p.categoria} | Bs ${p.precio} | Estilo: ${p.estilo || ''} | Correa: ${p.tipo_correa || ''} ${p.color_correa || ''} | Esfera: ${p.diseno_esfera || ''}`)
     .join('\n');
 
   const resumenRecomendados = puntuados
     .map(({ producto, score }) => `- ${producto.nombre} (Bs ${producto.precio}, ${score}% de coincidencia)`)
     .join('\n');
 
-  return `Sos el asesor virtual CRONOAI de Cronos, una relojería exclusiva en Bolivia que vende relojes y atiende por WhatsApp.
-
-El cliente ya respondió un cuestionario de preferencias:
+  return `Sos el asesor virtual CRONOAI de Relojería Cronos en Bolivia.
+El cliente respondió el cuestionario de preferencias:
 ${JSON.stringify(respuestasUsuario)}
 
-Y ya le mostraste estas recomendaciones:
+Recomendaciones mostradas:
 ${resumenRecomendados}
 
-Este es el catálogo completo disponible:
+Catálogo disponible:
 ${listaProductos}
 
-Reglas importantes:
-- Respondé en español con tono amable, elegante y profesional.
-- Moneda: siempre en bolivianos (Bs).
-- Respuestas cortas: máximo 3 o 4 oraciones.
-- Solo recomendá productos existentes en el catálogo; nunca inventes modelos ni precios.
-- Si piden algo distinto a lo recomendado, busca en la lista de arriba y sugiere piezas por su nombre exacto.
-- Si consultan sobre compras o envíos, recuérdales que pueden coordinar directamente por WhatsApp.`;
+Instrucciones:
+- Tono amable, cortés, elegante y conciso (máximo 3 o 4 oraciones).
+- Precios siempre en bolivianos (Bs).
+- Solo responde sobre relojes reales de este catálogo.
+- Si preguntan por compras o envíos, recuérdales que coordinan de inmediato por WhatsApp.`;
 }
 
 async function preguntarAGemini(mensajeUsuario) {
   historialChat.push({ role: 'user', parts: [{ text: mensajeUsuario }] });
 
   const client = obtenerClienteSupabase();
-  if (!client) {
-    throw new Error('No se pudo establecer conexión con el servidor.');
-  }
+  if (!client) throw new Error('No se pudo establecer conexión.');
 
-  // Preparamos el cuerpo de la petición incluyendo la API Key personalizada si se rellenó arriba
   const bodyPayload = { 
     promptSistema, 
     historial: historialChat,
@@ -330,7 +369,7 @@ async function preguntarAGemini(mensajeUsuario) {
   });
 
   if (error) {
-    console.error('Error llamando a la función:', error);
+    console.error('Error Edge Function:', error);
     throw new Error('No se pudo contactar al asesor. Intenta de nuevo en un momento.');
   }
 
@@ -377,9 +416,6 @@ function habilitarChatLibre() {
   if (input) input.focus();
 }
 
-// -----------------------------------------------------------
-// Inicialización del Chat IA
-// -----------------------------------------------------------
 function iniciarChat() {
   const form = document.getElementById('chat-form');
   if (!form) return;
