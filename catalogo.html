@@ -8,7 +8,7 @@
   <!-- Tipografía refinada -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
   <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -19,7 +19,6 @@
     <div class="container nav-container-flex">
       <a href="index.html" class="brand">
         <img src="img/logo-cronos.png" alt="Cronos Relojería" class="brand-logo-img">
-        <span class="brand-text">CRONOS</span>
       </a>
 
       <nav class="nav-links">
@@ -30,8 +29,11 @@
       </nav>
 
       <div class="nav-actions">
+        <a href="agente-ia.html" class="btn-nav-cronoai">
+          <span>✨ Probar CRONOAI</span>
+        </a>
         <div id="auth-slot"><a href="login.html" class="btn-auth-link">Ingresar</a></div>
-        <button class="nav-toggle" aria-label="Abrir menú">&#9776;</button>
+        <button class="nav-toggle" aria-label="Abrir menú">☰</button>
       </div>
     </div>
   </header>
@@ -43,7 +45,7 @@
       <h1 class="section-title">Nuestra Colección</h1>
       <p class="section-subtitle">Piezas seleccionadas que combinan ingeniería mecánica, diseño atemporal y elegancia superior.</p>
 
-      <!-- Tabs de filtro por categoría -->
+      <!-- Tabs de filtro por categoría (Estilo cápsula premium) -->
       <div class="filter-tabs">
         <button class="filter-tab active" data-categoria="todos">Todos</button>
         <button class="filter-tab" data-categoria="hombre">Hombre</button>
@@ -81,8 +83,8 @@
               <span class="feature-label">Autenticidad & Calidad</span>
             </div>
             <div class="feature-item">
-              <span class="feature-number">360°</span>
-              <span class="feature-label">Inspección Digital 3D</span>
+              <span class="feature-number">5 Vistas</span>
+              <span class="feature-label">Galería Multiángulo</span>
             </div>
             <div class="feature-item">
               <span class="feature-number">24/7</span>
@@ -90,11 +92,11 @@
             </div>
           </div>
         </div>
-        <div class="about-card-badge">
-          <div class="badge-inner">
-            <div style="font-size: 2.4rem; margin-bottom: 12px;">⏱️</div>
-              <h3>Artesanía & Precisión</h3>
-              <p>Atención directa y asesoramiento técnico personalizado para encontrar la pieza indicada para tu estilo de vida.</p>
+        <div class="about-seal-card">
+          <div class="seal-inner">
+            <div class="seal-icon">⏱️</div>
+            <h3>Artesanía & Precisión</h3>
+            <p>Atención directa y asesoramiento técnico personalizado para encontrar la pieza indicada para tu estilo de vida.</p>
           </div>
         </div>
       </div>
@@ -122,7 +124,7 @@
           <div class="contact-icon">📍</div>
           <h3>Atención Directa</h3>
           <p>Santa Cruz, Bolivia. Ventas y entregas personalizadas con previa cita.</p>
-          <span class="contact-detail-text">Lun - Sáb: 09:00 - 19:00</span>
+          <span class="contact-detail-text">Lun - Sáb: 09:00 - 19:30</span>
         </div>
 
         <div class="contact-card">
@@ -135,13 +137,13 @@
     </div>
   </section>
 
-  <!-- ===================== FOOTER ===================== -->
+  <!-- ===================== FOOTER COMPACTO ===================== -->
   <footer class="footer">
     <div class="container">
       <div class="footer-grid">
         <div class="footer-col brand-col">
           <span class="brand-name">CRONOS</span>
-          <p>Venta exclusiva de piezas de relojería. Precisión suiza, estilo atemporal y atención especializada.</p>
+          <p>Venta exclusiva de piezas de relojería. Estilo atemporal, visualización multiángulo y atención especializada en Bolivia.</p>
         </div>
         <div class="footer-col">
           <p class="footer-heading">Navegación</p>
@@ -154,21 +156,20 @@
           <p class="footer-heading">Canales</p>
           <a href="https://wa.me/59173158851" target="_blank">WhatsApp Directo</a>
           <a href="agente-ia.html">Asesor Inteligente</a>
-          <a href="admin/login.html">Panel Administrador</a>
         </div>
       </div>
       <div class="footer-bottom">
-        &copy; 2026 Cronos. Todos los derechos reservados.
+        &copy; 2026 Relojería CRONOS. Todos los derechos reservados.
       </div>
     </div>
   </footer>
 
-  <!-- ===================== BOTÓN FLOTANTE ASESOR IA ===================== -->
+  <!-- ===================== BOTÓN FLOTANTE ASESOR IA (COMPACTO) ===================== -->
   <a href="agente-ia.html" class="ai-float-btn">
     <span class="ai-spark">✨</span>
     <span class="ai-float-text">
-      <strong>¿Buscando una recomendación?</strong>
-      <span>Consulta a nuestro asesor IA</span>
+      <strong>Asesor IA</strong>
+      <span>Consulta personalizada</span>
     </span>
   </a>
 

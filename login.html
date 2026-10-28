@@ -3,59 +3,90 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Relojería CRONOS — Ingresar</title>
+  <title>CRONOS — Ingresar a tu Cuenta</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
-<!-- ===================== FORMULARIO LOGIN ===================== -->
+  <!-- ================= NAVBAR ================= -->
+  <header class="navbar">
+    <div class="container nav-container-flex">
+      <a href="index.html" class="brand">
+        <img src="img/logo-cronos.png" alt="CRONOS" class="brand-logo-img">
+      </a>
+
+      <nav class="nav-links">
+        <a href="index.html">Inicio</a>
+        <a href="catalogo.html">Catálogo</a>
+        <a href="index.html#nosotros">Nosotros</a>
+        <a href="index.html#contacto">Contacto</a>
+      </nav>
+
+      <div class="nav-actions">
+        <div id="auth-slot">
+          <a href="login.html" class="btn-auth-link">Ingresar</a>
+        </div>
+        <button class="nav-toggle" aria-label="Abrir menú">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= FORMULARIO DE INGRESO ================= -->
   <main class="auth-wrap">
     <div class="auth-card">
-      <span class="eyebrow">Bienvenido de nuevo</span>
+      <img src="img/logo-cronos.png" alt="CRONOS" class="auth-logo">
+      <span class="eyebrow">BIENVENIDO DE NUEVO</span>
       <h1>Ingresar</h1>
-      <p class="auth-sub">Accedé a tu cuenta para ver tus pedidos y favoritos.</p>
+      <p class="auth-sub">Accedé a tu cuenta para ver tus pedidos y piezas favoritas.</p>
 
-      <p id="auth-error" class="auth-error"></p>
+      <div id="auth-error" class="auth-error"></div>
 
       <form id="login-form">
         <div class="field">
           <label for="email">Correo electrónico</label>
-          <input type="email" id="email" name="email" placeholder="tu@correo.com" required>
+          <input type="email" id="email" required placeholder="tu@correo.com" autocomplete="email">
         </div>
+
         <div class="field">
           <label for="password">Contraseña</label>
-          <input type="password" id="password" name="password" placeholder="••••••••" required>
+          <input type="password" id="password" required placeholder="••••••••" autocomplete="current-password">
         </div>
-        <button type="submit" class="btn btn-primary">Ingresar</button>
+
+        <button type="submit" class="btn-submit-auth">Ingresar</button>
       </form>
 
-      <p class="auth-switch">
+      <div class="auth-switch">
         ¿No tenés cuenta? <a href="register.html">Registrate acá</a>
-      </p>
+      </div>
     </div>
   </main>
 
-  <!-- ===================== FOOTER ===================== -->
+  <!-- ================= FOOTER COMPACTO ================= -->
   <footer class="footer">
     <div class="container">
       <div class="footer-grid">
-        <div class="footer-col">
+        <div class="footer-col brand-col">
           <span class="brand-name">CRONOS</span>
-          <p>Venta directa desde nuestro domicilio, atención personalizada.</p>
+          <p>Venta de relojes exclusivos con atención personalizada en Bolivia.</p>
         </div>
         <div class="footer-col">
-          <p class="eyebrow">Navegación</p>
+          <p class="footer-heading">Navegación</p>
           <a href="index.html">Inicio</a>
           <a href="catalogo.html">Catálogo</a>
         </div>
         <div class="footer-col">
-          <p class="eyebrow">Contacto</p>
-          <a href="#">WhatsApp</a>
-          <a href="#">Instagram</a>
+          <p class="footer-heading">Contacto</p>
+          <a href="https://wa.me/59173158851" target="_blank">WhatsApp</a>
+          <a href="agente-ia.html">Asesor IA</a>
         </div>
       </div>
       <div class="footer-bottom">
-        &copy; 2026 Cronos. Todos los derechos reservados.
+        &copy; 2026 Relojería CRONOS. Todos los derechos reservados.
       </div>
     </div>
   </footer>
