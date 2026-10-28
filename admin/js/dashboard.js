@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const viewClientes = document.getElementById("view-clientes");
   const todasLasVistas = [viewCatalogo, viewFormulario, viewVentas, viewProveedores, viewClientes];
 
-  // Botones de navegación
+  // Botones de navegación lateral
   const navProductos = document.getElementById("nav-productos");
   const navVentas = document.getElementById("nav-ventas");
   const navProveedores = document.getElementById("nav-proveedores");
@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const selectEstado = document.getElementById("filter-estado");
   const selectOrden = document.getElementById("filter-orden");
 
-  // Toggle móvil
+  // Menú móvil responsivo
   const btnToggleSidebar = document.getElementById("btn-toggle-sidebar");
   const sidebar = document.getElementById("admin-sidebar");
   if (btnToggleSidebar && sidebar) {
@@ -70,7 +70,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (navClientes) navClientes.addEventListener("click", (e) => { e.preventDefault(); activarVista(viewClientes, navClientes); cargarClientes(); });
 
   // ---------------------------------------------------------
-  // MÓDULO 1: PRODUCTOS / CATÁLOGO
+  // MÓDULO 1: PRODUCTOS / CATÁLOGO MULTIÁNGULO
   // ---------------------------------------------------------
   async function cargarInventario() {
     if (!client) return;
@@ -336,16 +336,19 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   // ---------------------------------------------------------
-  // MÓDULO 2: VENTAS
+  // MÓDULO 2: VENTAS (Corregido y Compatible)
   // ---------------------------------------------------------
   async function cargarVentas() {
     const tbody = document.getElementById("tbody-ventas");
     if (!tbody || !client) return;
     tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px;">Cargando ventas...</td></tr>`;
 
-    const { data, error } = await client.from("ventas").select("*, productos(nombre)").order("fecha_venta", { ascending: false });
+    // Consulta directa para evitar error 400 por claves foráneas ausentes
+    const { data, error } = await client.from("ventas").select("*");
+
     if (error) {
-      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#ef4444;">Error al cargar ventas.</td></tr>`;
+      console.error("Error ventas:", error);
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#ef4444;">Error al cargar ventas (${error.message}).</td></tr>`;
       return;
     }
 
@@ -354,19 +357,33 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
+    // Ordenamiento por fecha
+    data.sort((a, b) => new Date(b.fecha || b.fecha_venta || b.created_at || 0) - new Date(a.fecha || a.fecha_venta || a.created_at || 0));
+
     tbody.innerHTML = data.map(v => {
-      const fecha = v.fecha_venta ? new Date(v.fecha_venta).toLocaleDateString("es-BO") : "-";
-      const relojNombre = v.productos?.nombre || v.reloj || "Reloj";
-      const total = Number(v.total || (v.cantidad * v.precio_unitario) || 0).toFixed(2);
+      const fechaVal = v.fecha || v.fecha_venta || v.created_at;
+      const fecha = fechaVal ? new Date(fechaVal).toLocaleDateString("es-BO") : "-";
+
+      let relojNombre = v.reloj || v.nombre_reloj;
+      if (!relojNombre && v.producto_id) {
+        const prod = inventario.find(p => String(p.id) === String(v.producto_id));
+        relojNombre = prod ? prod.nombre : `ID: ${v.producto_id}`;
+      }
+      relojNombre = relojNombre || "Reloj";
+
+      const cant = v.cantidad || v.cant || 1;
+      const precioUnit = Number(v.precio_unitario || v.precio || 0);
+      const total = Number(v.total || (cant * precioUnit) || 0).toFixed(2);
+
       return `
         <tr>
           <td>${fecha}</td>
           <td><strong>${relojNombre}</strong></td>
-          <td>${v.cantidad || 1}</td>
-          <td>Bs ${Number(v.precio_unitario || 0).toFixed(2)}</td>
+          <td>${cant}</td>
+          <td>Bs ${precioUnit.toFixed(2)}</td>
           <td><strong>Bs ${total}</strong></td>
-          <td>${v.nombre_cliente || "Cliente mostrador"}</td>
-          <td><span class="badge-pay">${v.metodo_pago || "efectivo"}</span></td>
+          <td>${v.nombre_cliente || v.cliente || "Cliente mostrador"}</td>
+          <td><span class="badge-pay">${v.metodo_pago || v.pago || "efectivo"}</span></td>
           <td>
             <button type="button" class="btn-table-del" onclick="eliminarVenta('${v.id}')">🗑️ Eliminar</button>
           </td>
@@ -414,23 +431,31 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (formVenta) {
     formVenta.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const relojId = selectVentaReloj.value;
+      const relojSelect = selectVentaReloj;
+      const relojId = relojSelect.value;
+      const relojTexto = relojSelect.options[relojSelect.selectedIndex]?.text.split(" (Bs")[0] || "Reloj";
       const cant = parseInt(document.getElementById("venta-cantidad").value, 10) || 1;
       const precio = parseFloat(document.getElementById("venta-precio").value) || 0;
       const cliente = document.getElementById("venta-cliente").value.trim();
       const tel = document.getElementById("venta-telefono").value.trim();
       const pago = document.getElementById("venta-pago").value;
 
-      const { error } = await client.from("ventas").insert([{
+      const payloadVenta = {
+        reloj: relojTexto,
         producto_id: relojId,
         cantidad: cant,
         precio_unitario: precio,
         total: cant * precio,
         nombre_cliente: cliente || "Cliente directo",
+        cliente: cliente || "Cliente directo",
         telefono_cliente: tel,
         metodo_pago: pago,
+        pago: pago,
+        fecha: new Date().toISOString().split("T")[0],
         fecha_venta: new Date().toISOString()
-      }]);
+      };
+
+      const { error } = await client.from("ventas").insert([payloadVenta]);
 
       if (error) {
         mostrarToast("Error: " + error.message);
@@ -526,32 +551,37 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // ---------------------------------------------------------
-  // MÓDULO 4: CLIENTES
+  // MÓDULO 4: CLIENTES (Consulta directa a tabla 'clientes')
   // ---------------------------------------------------------
   async function cargarClientes() {
     const tbody = document.getElementById("tbody-clientes");
     if (!tbody || !client) return;
     tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:20px;">Cargando clientes...</td></tr>`;
 
-    let { data, error } = await client.from("usuarios").select("*").eq("rol", "cliente");
+    let { data, error } = await client.from("clientes").select("*");
 
-    if (error || !data || data.length === 0) {
+    if (error || !data) {
       const res = await client.from("usuarios").select("*");
       data = res.data || [];
     }
 
-    if (data.length === 0) {
+    if (!data || data.length === 0) {
       tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:20px; color:#64748b;">No hay clientes registrados en este momento.</td></tr>`;
       return;
     }
 
     tbody.innerHTML = data.map(c => {
-      const fecha = c.created_at ? new Date(c.created_at).toLocaleDateString("es-BO") : "-";
+      const fechaVal = c.created_at || c.registrado || c.fecha_registro;
+      const fecha = fechaVal ? new Date(fechaVal).toLocaleDateString("es-BO") : "-";
+      const nombre = c.nombre_completo || c.nombre || "Usuario";
+      const correo = c.email || c.correo || "-";
+      const telefono = c.telefono_whatsapp || c.telefono || c.celular || "-";
+
       return `
         <tr>
-          <td><strong>${c.nombre_completo || c.nombre || "Usuario"}</strong></td>
-          <td>${c.email || "-"}</td>
-          <td>${c.telefono_whatsapp || c.telefono || "-"}</td>
+          <td><strong>${nombre}</strong></td>
+          <td>${correo}</td>
+          <td>${telefono}</td>
           <td>${fecha}</td>
         </tr>
       `;
