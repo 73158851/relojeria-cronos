@@ -3,13 +3,170 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel CRONOS — Ingresar</title>
+  <title>CRONOS — Acceso al Panel de Administración</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="admin/css/dashboard.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+
+  <style>
+    /* Estilos autónomos de alta relojería para el Login */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      min-height: 100vh;
+      background: radial-gradient(circle at top, rgba(20, 83, 45, 0.14) 0%, rgba(9, 26, 19, 0.03) 60%), #f4f7f5;
+      color: #0b1510;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .auth-wrap {
+      width: 100%;
+      max-width: 440px;
+    }
+
+    .auth-card {
+      background: #ffffff;
+      border: 1px solid #e2e8e5;
+      border-radius: 18px;
+      padding: 44px 38px;
+      box-shadow: 0 20px 45px rgba(10, 31, 22, 0.10);
+      text-align: center;
+    }
+
+    .brand-crown {
+      font-size: 38px;
+      display: inline-block;
+      margin-bottom: 8px;
+      filter: drop-shadow(0 4px 10px rgba(197, 160, 89, 0.3));
+    }
+
+    .eyebrow {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #c5a059;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-family: 'Cinzel', Georgia, serif;
+      font-size: 32px;
+      letter-spacing: 0.1em;
+      color: #0a1f16;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    .auth-sub {
+      font-size: 13.5px;
+      color: #5d7168;
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+
+    .auth-error {
+      display: none;
+      background: #fee2e2;
+      border: 1px solid rgba(220, 38, 38, 0.3);
+      color: #dc2626;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 11px 14px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .field {
+      text-align: left;
+      margin-bottom: 18px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #0a1f16;
+      margin-bottom: 6px;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid #e2e8e5;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      background: #fbfdfc;
+      transition: all 0.2s ease;
+      color: #0b1510;
+    }
+
+    .field input:focus {
+      border-color: #14532d;
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(20, 83, 45, 0.12);
+    }
+
+    button[type="submit"] {
+      width: 100%;
+      padding: 13px 20px;
+      background: #14532d;
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      border: 1px solid #c5a059;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 14px rgba(20, 83, 45, 0.25);
+    }
+
+    button[type="submit"]:hover:not(:disabled) {
+      background: #166534;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(20, 83, 45, 0.35);
+    }
+
+    button[type="submit"]:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .auth-switch {
+      margin-top: 24px;
+      padding-top: 18px;
+      border-top: 1px solid #e2e8e5;
+    }
+
+    .auth-switch a {
+      color: #5d7168;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .auth-switch a:hover {
+      color: #14532d;
+    }
+  </style>
 </head>
 <body>
 
@@ -20,13 +177,12 @@
       <h1>CRONOS</h1>
       <p class="auth-sub">Acceso exclusivo para el equipo de la relojería.</p>
 
-      <!-- Mensaje de error para credenciales incorrectas -->
       <div id="auth-error" class="auth-error"></div>
 
       <form id="admin-login-form">
         <div class="field">
           <label for="email">Correo electrónico</label>
-          <input type="email" id="email" required placeholder="admin@cronos.com" autocomplete="email">
+          <input type="email" id="email" required placeholder="angelortiz@gmail.com" autocomplete="email">
         </div>
 
         <div class="field">
@@ -43,7 +199,6 @@
     </div>
   </div>
 
-  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/supabase-config.js"></script>
   <script src="js/admin-auth.js"></script>
