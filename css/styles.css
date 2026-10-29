@@ -1,7 +1,7 @@
 /* =========================================================
    CRONOS — Hoja de Estilos Global Unificada de Alta Relojería
    Inspirada en Chronovia & Laxar (Verde Esmeralda, Oro y Blanco)
-   100% Responsiva y Optimizada para Móviles (2 Columnas en Catálogo)
+   100% Responsiva (Blindaje Estricto de 2 Columnas Móviles)
    ========================================================= */
 
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Montserrat:wght@300;400;500;600;700&display=swap');
@@ -77,6 +77,8 @@ body {
   font-family: var(--font-sans);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 img {
@@ -93,7 +95,7 @@ a {
   width: 100%;
   max-width: 1220px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 20px;
 }
 
 .text-center {
@@ -468,7 +470,7 @@ a {
   transition: var(--transition);
 }
 
-/* ================= BANNERS DESTACADOS INTERCALADOS ================= */
+/* ================= BANNERS DESTACADOS ================= */
 .showcase-section {
   padding: 65px 0 80px;
   background: #ffffff;
@@ -721,6 +723,7 @@ a {
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 26px;
   padding: 10px 0 50px;
+  align-items: stretch;
 }
 
 .product-card {
@@ -731,8 +734,12 @@ a {
   padding: 16px;
   display: flex;
   flex-direction: column;
+  height: 100%;
+  justify-content: space-between;
   transition: var(--transition);
   box-shadow: var(--shadow-sm);
+  min-width: 0;
+  overflow: hidden;
 }
 
 .product-card:hover {
@@ -783,6 +790,7 @@ a {
   display: flex;
   flex-direction: column;
   flex: 1;
+  min-width: 0;
 }
 
 .product-category {
@@ -1287,7 +1295,7 @@ a {
   color: #94a3b8;
 }
 
-/* ================= BOTÓN FLOTANTE CRONOAI (COMPACTO) ================= */
+/* ================= BOTÓN FLOTANTE CRONOAI ================= */
 .ai-float-btn {
   position: fixed;
   bottom: 22px;
@@ -1332,10 +1340,9 @@ a {
 }
 
 /* =========================================================
-   ADAPTACIÓN RESPONSIVA Y REGLAS DE 2 COLUMNAS EN MÓVIL
+   ADAPTACIÓN RESPONSIVA Y BLINDAJE 2 COLUMNAS EN MÓVIL
    ========================================================= */
 @media (max-width: 860px) {
-  /* Cabecera Móvil */
   .nav-toggle {
     display: block !important;
   }
@@ -1366,12 +1373,10 @@ a {
     border-bottom: 1px solid var(--border-light);
   }
 
-  /* Ocultar botón probar CronoAI en el navbar superior de celular para evitar saturación */
   .btn-nav-cronoai {
     display: none !important;
   }
 
-  /* Banners destacados */
   .product-hero-banner,
   .rolex-feature-row,
   .featured-showcase-container > .product-hero-banner:nth-child(even),
@@ -1408,9 +1413,9 @@ a {
     display: none;
   }
 
-  /* FOOTER COMPACTO EN CELULARES */
+  /* FOOTER COMPACTO EN MÓVIL */
   .footer {
-    padding: 26px 0 14px !important;
+    padding: 24px 0 14px !important;
   }
 
   .footer-grid {
@@ -1449,7 +1454,7 @@ a {
     font-size: 10.5px !important;
   }
 
-  /* BOTÓN FLOTANTE COMPACTO EN CELULARES */
+  /* BOTÓN FLOTANTE COMPACTO */
   .ai-float-btn {
     bottom: 14px !important;
     right: 14px !important;
@@ -1471,77 +1476,141 @@ a {
   }
 }
 
-/* ================= CATÁLOGO: EXACTAMENTE 2 COLUMNAS EN CELULARES ================= */
+/* =========================================================
+   BLINDAJE INFALIBLE: EXACTAMENTE 2 COLUMNAS EN CELULARES
+   ========================================================= */
 @media (max-width: 768px) {
+  .catalog-body .container,
+  .container {
+    padding: 0 10px !important;
+  }
+
+  /* minmax(0, 1fr) PROHÍBE que los nombres largos desborden el 50% de la pantalla */
   .product-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 12px !important;
-    padding: 10px 0 40px !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    padding: 8px 0 35px !important;
+    width: 100% !important;
+    align-items: stretch !important;
+    box-sizing: border-box !important;
   }
 
   .product-card {
-    padding: 10px !important;
-    border-radius: var(--radius-sm) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    padding: 8px 6px !important;
+    border-radius: 8px !important;
+    justify-content: space-between !important;
+    background: #ffffff !important;
+    border: 1px solid var(--border-light) !important;
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
   }
 
   .product-card-media {
-    height: 135px !important;
-    margin: 6px 0 !important;
+    width: 100% !important;
+    height: 130px !important;
+    min-height: 130px !important;
+    max-height: 130px !important;
+    margin: 4px 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+    background: #fbfdfc !important;
+    border-radius: 4px !important;
+  }
+
+  .product-thumb-img {
+    max-width: 90% !important;
+    max-height: 90% !important;
+    object-fit: contain !important;
   }
 
   .card-badge {
-    top: 6px !important;
-    left: 6px !important;
-    font-size: 9px !important;
-    padding: 2px 5px !important;
+    top: 5px !important;
+    left: 5px !important;
+    font-size: 8.5px !important;
+    padding: 2px 4px !important;
+  }
+
+  .product-card-body {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
   }
 
   .product-category {
-    font-size: 9.5px !important;
+    font-size: 9px !important;
     margin-bottom: 2px !important;
-  }
-
-  .product-card-title {
-    font-size: 12.5px !important;
-    line-height: 1.25 !important;
-    margin: 0 0 6px !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
   }
 
+  /* Altura uniforme con estándar moderno para quitar la raya amarilla */
+  .product-card-title {
+    font-size: 11.5px !important;
+    line-height: 1.25 !important;
+    margin: 0 0 4px !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    max-height: 30px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+
   .product-card-footer {
-    padding-top: 8px !important;
+    margin-top: auto !important;
+    padding-top: 6px !important;
+    border-top: 1px solid var(--border-light) !important;
+    display: flex !important;
     flex-direction: column !important;
     align-items: flex-start !important;
-    gap: 6px !important;
+    gap: 4px !important;
+    width: 100% !important;
   }
 
   .product-price {
-    font-size: 14.5px !important;
+    font-size: 13.5px !important;
+    font-weight: 700 !important;
   }
 
   .btn-ver-detalle {
     width: 100% !important;
     text-align: center !important;
-    padding: 5px 8px !important;
-    font-size: 11px !important;
+    padding: 5px 4px !important;
+    font-size: 10.5px !important;
+    border-radius: 4px !important;
+    box-sizing: border-box !important;
   }
 
   .filter-tabs {
     gap: 6px !important;
-    margin: 16px auto 24px auto !important;
+    margin: 14px auto 20px auto !important;
   }
 
   .filter-tab {
-    padding: 6px 14px !important;
-    font-size: 11.5px !important;
+    padding: 6px 12px !important;
+    font-size: 11px !important;
   }
 }
 
 @media (max-width: 560px) {
   .hero-title {
-    font-size: 30px;
+    font-size: 28px;
   }
 
   .hero-actions {
