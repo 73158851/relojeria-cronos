@@ -216,7 +216,7 @@ body {
   font-weight: 600;
 }
 
-/* Botón cerrar sesión subido y accesible */
+/* Botón cerrar sesión en la barra lateral */
 .btn-logout-sidebar {
   width: 100%;
   display: flex;
@@ -501,6 +501,67 @@ body {
   background: #ffffff;
   border-radius: var(--radius-sm);
   cursor: pointer;
+}
+
+/* =========================================================
+   PAGINACIÓN DEL CATÁLOGO ADMINISTRATIVO (ESTILO MEJORADO)
+   ========================================================= */
+.pagination-bar {
+  margin-top: 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+#pagination-info {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+#pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Botones de números de página 1, 2, 3, 4 */
+.page-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 10px;
+  background: #ffffff;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.page-btn:hover {
+  border-color: var(--green-primary);
+  color: var(--green-primary);
+  background: var(--green-light);
+  transform: translateY(-1px);
+}
+
+.page-btn.active {
+  background: var(--green-primary) !important;
+  color: #ffffff !important;
+  border-color: var(--green-primary) !important;
+  box-shadow: 0 4px 12px rgba(20, 83, 45, 0.25) !important;
+  font-weight: 700;
 }
 
 /* ================= TABLAS ================= */
@@ -838,7 +899,7 @@ body {
   }
 
   .topbar-subtext {
-    display: none !important; /* Oculta el texto repetido para liberar espacio */
+    display: none !important;
   }
 
   .topbar-logo-img {
@@ -854,7 +915,22 @@ body {
     font-size: 11px;
   }
 
-  /* Barra lateral deslizable en celulares */
+  .pagination-bar {
+    justify-content: center;
+    gap: 10px;
+  }
+
+  #pagination-info {
+    width: 100%;
+    text-align: center;
+  }
+
+  .page-btn {
+    min-width: 38px;
+    height: 38px;
+    font-size: 14px;
+  }
+
   .admin-sidebar {
     position: fixed;
     top: var(--topbar-height);
