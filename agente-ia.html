@@ -12,13 +12,12 @@
   <link rel="stylesheet" href="css/styles.css">
 
   <style>
-    /* Ajustes específicos para el contenedor del Asesor IA */
     .chat-page-main {
       min-height: calc(100vh - var(--nav-height));
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 40px 20px;
+      padding: 30px 16px;
       background: radial-gradient(circle at top, rgba(20, 83, 45, 0.08), transparent 50%), #fafafc;
     }
 
@@ -113,7 +112,6 @@
       font-style: italic;
     }
 
-    /* Opciones del cuestionario de 6 preguntas */
     .chat-options {
       display: flex;
       flex-wrap: wrap;
@@ -152,7 +150,6 @@
       display: none;
     }
 
-    /* Tarjetas de relojes recomendados (al terminar la pregunta 6) */
     .chat-resultados {
       display: flex;
       flex-direction: column;
@@ -225,7 +222,6 @@
       gap: 10px;
     }
 
-    /* Entrada de texto para seguir conversando tras las 6 preguntas */
     .chat-input {
       display: flex;
       gap: 12px;
@@ -297,14 +293,17 @@
 </head>
 <body>
 
-  <!-- ===================== NAVBAR UNIFICADA ===================== -->
+  <!-- ===================== NAVBAR CON MENÚ A LA IZQUIERDA ===================== -->
   <header class="navbar">
     <div class="container nav-container-flex">
-      <a href="index.html" class="brand">
-        <img src="img/logo-cronos.png" alt="CRONOS" class="brand-logo-img">
-      </a>
+      <div class="nav-brand-group">
+        <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menú">☰</button>
+        <a href="index.html" class="brand">
+          <img src="img/logo-cronos.png" alt="CRONOS" class="brand-logo-img">
+        </a>
+      </div>
 
-      <nav class="nav-links">
+      <nav class="nav-links" id="nav-links">
         <a href="index.html">Inicio</a>
         <a href="catalogo.html">Catálogo</a>
         <a href="index.html#nosotros">Nosotros</a>
@@ -315,7 +314,6 @@
         <div id="auth-slot">
           <a href="login.html" class="btn-auth-link">Ingresar</a>
         </div>
-        <button class="nav-toggle" aria-label="Abrir menú">☰</button>
       </div>
     </div>
   </header>
@@ -334,10 +332,8 @@
         </div>
       </div>
 
-      <!-- Contenedor donde chat-ia.js genera las 6 preguntas guiadas y las recomendaciones -->
       <div class="chat-messages" id="chat-messages"></div>
 
-      <!-- Formulario para seguir la conversación libremente con Gemini tras las 6 preguntas -->
       <form class="chat-input" id="chat-form">
         <input type="text" placeholder="Respondé las preguntas de arriba..." disabled>
         <button type="submit" class="chat-send" disabled title="Enviar mensaje">➤</button>
@@ -346,7 +342,6 @@
     </div>
   </main>
 
-  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase-config.js"></script>
   <script src="js/whatsapp-config.js"></script>

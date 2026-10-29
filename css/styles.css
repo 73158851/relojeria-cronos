@@ -226,7 +226,7 @@ a {
 .nav-actions {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
 }
 
 .btn-nav-cronoai {
@@ -249,22 +249,27 @@ a {
   transform: translateY(-1px);
 }
 
+/* Botón Ingresar verde corporativo */
 .btn-auth-link {
   font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  font-weight: 700;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  padding: 7px 15px;
-  border: 1px solid #d1d5db;
+  padding: 8px 18px;
+  border: 1px solid var(--gold-accent);
   border-radius: 20px;
-  color: var(--text-main);
+  background: var(--green-primary);
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(20, 83, 45, 0.25);
   transition: var(--transition);
+  white-space: nowrap;
 }
 
 .btn-auth-link:hover {
-  border-color: var(--green-primary);
-  color: var(--green-primary);
-  background: var(--green-light);
+  background: var(--green-hover);
+  border-color: var(--gold-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(20, 83, 45, 0.35);
 }
 
 /* ================= SESIÓN EN NAVBAR ================= */
@@ -309,7 +314,6 @@ a {
   display: flex;
   align-items: center;
   background-color: var(--green-dark);
-  /* Ruta lista: coloca tu foto con este nombre en la carpeta imagenes/ */
   background-image: url('../imagenes/hero-reloj.jpg');
   background-size: cover;
   background-position: center right;
@@ -320,7 +324,6 @@ a {
   border-bottom: 1px solid var(--border-dark);
 }
 
-/* Sombreado degradado para legibilidad impecable */
 .rolex-hero-overlay {
   position: absolute;
   inset: 0;
@@ -1383,6 +1386,11 @@ a {
     display: none !important;
   }
 
+  .btn-auth-link {
+    padding: 6px 14px !important;
+    font-size: 11px !important;
+  }
+
   .product-hero-banner,
   .rolex-feature-row,
   .featured-showcase-container > .product-hero-banner:nth-child(even),
@@ -1498,16 +1506,13 @@ a {
   }
 }
 
-/* =========================================================
-   BLINDAJE INFALIBLE: EXACTAMENTE 2 COLUMNAS EN CELULARES
-   ========================================================= */
+/* ================= CATÁLOGO: 2 COLUMNAS UNIFORMES Y ALINEADAS EN MÓVILES ================= */
 @media (max-width: 768px) {
   .catalog-body .container,
   .container {
     padding: 0 10px !important;
   }
 
-  /* minmax(0, 1fr) PROHÍBE que los nombres largos desborden el 50% de la pantalla */
   .product-grid {
     display: grid !important;
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
@@ -1576,7 +1581,6 @@ a {
     text-overflow: ellipsis !important;
   }
 
-  /* Altura uniforme con estándar moderno para quitar la raya amarilla */
   .product-card-title {
     font-size: 11.5px !important;
     line-height: 1.25 !important;
