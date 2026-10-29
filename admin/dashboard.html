@@ -12,12 +12,10 @@
   <header class="admin-topbar">
     <div class="topbar-brand">
       <button type="button" id="btn-toggle-sidebar" class="btn-toggle-menu" aria-label="Abrir menú">☰</button>
-      <a href="dashboard.html" style="display: flex; align-items: center; text-decoration: none;">
-        <img src="../img/logo-cronos.png" alt="CRONOS" style="height: 38px; width: auto; object-fit: contain;">
+      <a href="dashboard.html" class="topbar-logo-link">
+        <img src="../img/logo-cronos.png" alt="CRONOS" class="topbar-logo-img">
       </a>
-      <span style="font-size: 12px; font-weight: 600; color: var(--text-muted); border-left: 1px solid var(--border); padding-left: 12px; margin-left: 4px;">
-        Panel Administrativo
-      </span>
+      <span class="topbar-subtext">Panel Administrativo</span>
     </div>
 
     <div class="topbar-search">
@@ -28,10 +26,13 @@
     <div class="topbar-profile">
       <div class="admin-user">
         <span>👤</span>
-        <span id="admin-email-label">Administrador</span>
+        <span id="admin-email-label">Admin</span>
       </div>
     </div>
   </header>
+
+  <!-- Telón de fondo para cerrar al tocar afuera en móviles -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
   <div class="admin-layout">
     <!-- ================= SIDEBAR ================= -->
@@ -68,14 +69,13 @@
           <span>✨</span>
           <span>Probar Asesor IA</span>
         </a>
-      </nav>
 
-      <div class="sidebar-footer">
-        <button type="button" id="btn-logout" class="btn-logout">
+        <!-- Cerrar sesión reubicado accesiblemente arriba -->
+        <button type="button" id="btn-logout" class="btn-logout-sidebar">
           <span>🚪</span>
           <span>Cerrar sesión</span>
         </button>
-      </div>
+      </nav>
     </aside>
 
     <!-- ================= CONTENIDO PRINCIPAL ================= -->

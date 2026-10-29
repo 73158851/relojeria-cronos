@@ -40,14 +40,41 @@ document.addEventListener("DOMContentLoaded", async () => {
   const selectEstado = document.getElementById("filter-estado");
   const selectOrden = document.getElementById("filter-orden");
 
-  // Menú móvil responsivo
+  // Control responsivo de la barra lateral y cierre exterior
   const btnToggleSidebar = document.getElementById("btn-toggle-sidebar");
   const sidebar = document.getElementById("admin-sidebar");
-  if (btnToggleSidebar && sidebar) {
-    btnToggleSidebar.addEventListener("click", () => {
-      sidebar.classList.toggle("open-mobile");
-    });
+  const overlay = document.getElementById("sidebar-overlay");
+
+  function cerrarSidebarMovil() {
+    if (sidebar) sidebar.classList.remove("open-mobile");
+    if (overlay) overlay.classList.remove("active");
   }
+
+  function toggleSidebarMovil(e) {
+    e.stopPropagation();
+    if (!sidebar) return;
+    const abrir = !sidebar.classList.contains("open-mobile");
+    sidebar.classList.toggle("open-mobile", abrir);
+    if (overlay) overlay.classList.toggle("active", abrir);
+  }
+
+  if (btnToggleSidebar) {
+    btnToggleSidebar.addEventListener("click", toggleSidebarMovil);
+  }
+
+  // Tocar en el fondo oscuro cierra la barra
+  if (overlay) {
+    overlay.addEventListener("click", cerrarSidebarMovil);
+  }
+
+  // Tocar fuera del sidebar en cualquier parte de la pantalla cierra la barra
+  document.addEventListener("click", (e) => {
+    if (sidebar && sidebar.classList.contains("open-mobile")) {
+      if (!sidebar.contains(e.target) && e.target !== btnToggleSidebar) {
+        cerrarSidebarMovil();
+      }
+    }
+  });
 
   let inventario = [];
   let listaVentas = [];
@@ -63,7 +90,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (vistaActiva) vistaActiva.classList.add("active");
     if (navActivo) navActivo.classList.add("active");
 
-    if (sidebar) sidebar.classList.remove("open-mobile");
+    cerrarSidebarMovil();
   }
 
   // Eventos de barra lateral
@@ -343,7 +370,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   // ---------------------------------------------------------
-  // MÓDULO 2: VENTAS (Registro y Edición con sticker ✏️)
+  // MÓDULO 2: VENTAS
   // ---------------------------------------------------------
   async function cargarVentas() {
     const tbody = document.getElementById("tbody-ventas");
@@ -535,7 +562,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // ---------------------------------------------------------
-  // MÓDULO 3: PROVEEDORES (Registro y Edición con sticker ✏️)
+  // MÓDULO 3: PROVEEDORES
   // ---------------------------------------------------------
   async function cargarProveedores() {
     const tbody = document.getElementById("tbody-proveedores");
