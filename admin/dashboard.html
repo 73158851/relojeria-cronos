@@ -341,7 +341,7 @@
                   <th>Total</th>
                   <th>Cliente</th>
                   <th>Método Pago</th>
-                  <th>Acciones</th>
+                  <th style="text-align: center;">Acciones</th>
                 </tr>
               </thead>
               <tbody id="tbody-ventas"></tbody>
@@ -372,7 +372,7 @@
                   <th>Teléfono</th>
                   <th>Correo</th>
                   <th>Estado</th>
-                  <th>Acciones</th>
+                  <th style="text-align: center;">Acciones</th>
                 </tr>
               </thead>
               <tbody id="tbody-proveedores"></tbody>
@@ -410,14 +410,15 @@
     </main>
   </div>
 
-  <!-- MODAL: REGISTRAR VENTA -->
+  <!-- MODAL: REGISTRAR / EDITAR VENTA -->
   <div id="modal-venta" class="admin-modal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>Registrar Venta</h3>
+        <h3 id="modal-venta-title">Registrar Venta</h3>
         <button type="button" class="btn-close-modal" onclick="cerrarModalVenta()">✕</button>
       </div>
       <form id="form-venta">
+        <input type="hidden" id="venta-id" value="">
         <div class="form-group" style="margin-bottom:12px;">
           <label>Seleccionar Reloj *</label>
           <select id="venta-reloj" required></select>
@@ -454,14 +455,15 @@
     </div>
   </div>
 
-  <!-- MODAL: REGISTRAR PROVEEDOR -->
+  <!-- MODAL: REGISTRAR / EDITAR PROVEEDOR -->
   <div id="modal-proveedor" class="admin-modal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>Nuevo Proveedor</h3>
+        <h3 id="modal-prov-title">Nuevo Proveedor</h3>
         <button type="button" class="btn-close-modal" onclick="cerrarModalProveedor()">✕</button>
       </div>
       <form id="form-proveedor">
+        <input type="hidden" id="prov-id" value="">
         <div class="form-group" style="margin-bottom:12px;">
           <label>Empresa / Proveedor *</label>
           <input type="text" id="prov-nombre" required placeholder="Ej: Distribuidora Relojera">

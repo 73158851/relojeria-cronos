@@ -50,6 +50,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   let inventario = [];
+  let listaVentas = [];
+  let listaProveedores = [];
   let paginaActual = 1;
   const itemsPorPagina = 10;
   let columnasRealesVentas = null;
@@ -71,7 +73,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (navClientes) navClientes.addEventListener("click", (e) => { e.preventDefault(); activarVista(viewClientes, navClientes); cargarClientes(); });
 
   // ---------------------------------------------------------
-  // MÓDULO 1: PRODUCTOS / CATÁLOGO MULTIÁNGULO
+  // MÓDULO 1: PRODUCTOS
   // ---------------------------------------------------------
   async function cargarInventario() {
     if (!client) return;
@@ -192,7 +194,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       principalFile: null,
       adicionales: [null, null, null, null, null]
     };
-    window.renderizarSlotsAdicionales();
+    if (typeof window.renderizarSlotsAdicionales === "function") {
+      window.renderizarSlotsAdicionales();
+    }
   }
 
   window.editarProducto = function(id) {
@@ -225,7 +229,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       return extras[idx] ? { url: extras[idx], file: null } : null;
     });
 
-    window.renderizarSlotsAdicionales();
+    if (typeof window.renderizarSlotsAdicionales === "function") {
+      window.renderizarSlotsAdicionales();
+    }
     activarVista(viewFormulario, navProductos);
   };
 
@@ -337,7 +343,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   // ---------------------------------------------------------
-  // MÓDULO 2: VENTAS (Lectura e Inserción Dinámica Sin Error 400)
+  // MÓDULO 2: VENTAS (Registro y Edición con sticker ✏️)
   // ---------------------------------------------------------
   async function cargarVentas() {
     const tbody = document.getElementById("tbody-ventas");
@@ -352,17 +358,18 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
-    if (!data || data.length === 0) {
+    listaVentas = data || [];
+
+    if (listaVentas.length === 0) {
       tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px; color:#64748b;">No hay ventas registradas todavía.</td></tr>`;
       return;
     }
 
-    // Guardamos la lista de columnas reales que tiene tu tabla en Supabase
-    columnasRealesVentas = Object.keys(data[0]);
+    columnasRealesVentas = Object.keys(listaVentas[0]);
 
-    data.sort((a, b) => new Date(b.fecha_venta || b.fecha || b.created_at || 0) - new Date(a.fecha_venta || a.fecha || a.created_at || 0));
+    listaVentas.sort((a, b) => new Date(b.fecha_venta || b.fecha || b.created_at || 0) - new Date(a.fecha_venta || a.fecha || a.created_at || 0));
 
-    tbody.innerHTML = data.map(v => {
+    tbody.innerHTML = listaVentas.map(v => {
       const fechaVal = v.fecha_venta || v.fecha || v.created_at;
       const fecha = fechaVal ? new Date(fechaVal).toLocaleDateString("es-BO") : new Date().toLocaleDateString("es-BO");
 
@@ -388,13 +395,33 @@ document.addEventListener("DOMContentLoaded", async () => {
           <td><strong>Bs ${total}</strong></td>
           <td>${clienteNombre}</td>
           <td><span class="badge-pay">${metodoPago}</span></td>
-          <td>
-            <button type="button" class="btn-table-del" onclick="eliminarVenta('${v.id}')">🗑️ Eliminar</button>
+          <td style="text-align:center; white-space:nowrap;">
+            <button type="button" class="btn-card-icon" onclick="editarVenta('${v.id}')" title="Editar venta" style="padding:4px 8px; font-size:13px; margin-right:4px;">✏️</button>
+            <button type="button" class="btn-table-del" onclick="eliminarVenta('${v.id}')" title="Eliminar venta">🗑️</button>
           </td>
         </tr>
       `;
     }).join("");
   }
+
+  window.editarVenta = function(id) {
+    const venta = listaVentas.find(v => String(v.id) === String(id));
+    if (!venta) return;
+
+    poblarSelectRelojesVenta();
+    document.getElementById("modal-venta-title").textContent = "Editar Venta";
+    document.getElementById("venta-id").value = venta.id;
+    if (venta.producto_id) {
+      selectVentaReloj.value = venta.producto_id;
+    }
+    document.getElementById("venta-cantidad").value = venta.cantidad || venta.cant || 1;
+    document.getElementById("venta-precio").value = venta.precio_unitario || venta.precio || 0;
+    document.getElementById("venta-cliente").value = venta.nombre_cliente || venta.cliente || "";
+    document.getElementById("venta-telefono").value = venta.telefono_cliente || venta.telefono || "";
+    document.getElementById("venta-pago").value = venta.metodo_pago || venta.pago || "Efectivo";
+
+    modalVenta.classList.add("active");
+  };
 
   window.eliminarVenta = async function(id) {
     if (!confirm("¿Deseas eliminar esta venta?")) return;
@@ -412,9 +439,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   const formVenta = document.getElementById("form-venta");
   const selectVentaReloj = document.getElementById("venta-reloj");
 
+  function poblarSelectRelojesVenta() {
+    selectVentaReloj.innerHTML = inventario.map(p => `<option value="${p.id}" data-precio="${p.precio}">${p.nombre} (Bs ${p.precio})</option>`).join("");
+  }
+
   if (btnNuevaVenta) {
     btnNuevaVenta.addEventListener("click", () => {
-      selectVentaReloj.innerHTML = inventario.map(p => `<option value="${p.id}" data-precio="${p.precio}">${p.nombre} (Bs ${p.precio})</option>`).join("");
+      document.getElementById("modal-venta-title").textContent = "Registrar Venta";
+      document.getElementById("venta-id").value = "";
+      formVenta.reset();
+      poblarSelectRelojesVenta();
       const primerPrecio = inventario[0]?.precio || 0;
       document.getElementById("venta-precio").value = primerPrecio;
       modalVenta.classList.add("active");
@@ -435,6 +469,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (formVenta) {
     formVenta.addEventListener("submit", async (e) => {
       e.preventDefault();
+      const idVenta = document.getElementById("venta-id").value;
       const relojSelect = selectVentaReloj;
       const relojId = relojSelect.value;
       const relojTexto = relojSelect.options[relojSelect.selectedIndex]?.text.split(" (Bs")[0] || "Reloj";
@@ -444,7 +479,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       const tel = document.getElementById("venta-telefono").value.trim();
       const pago = document.getElementById("venta-pago").value;
 
-      // Diccionario maestro de valores mapeados
       const mapaValores = {
         producto_id: relojId,
         reloj: relojTexto,
@@ -459,23 +493,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         telefono_cliente: tel,
         telefono: tel,
         metodo_pago: pago,
-        pago: pago,
-        fecha_venta: new Date().toISOString(),
-        fecha: new Date().toISOString().split("T")[0]
+        pago: pago
       };
 
       let payload = {};
-
       if (columnasRealesVentas && columnasRealesVentas.length > 0) {
-        // Enviar ÚNICAMENTE las columnas que existen en tu tabla de Supabase para evitar el error de schema cache
         columnasRealesVentas.forEach(col => {
           if (col === "id" || col === "created_at") return;
-          if (col in mapaValores) {
-            payload[col] = mapaValores[col];
-          }
+          if (col in mapaValores) payload[col] = mapaValores[col];
         });
       } else {
-        // Fallback seguro: solo campos universales
         payload = {
           producto_id: relojId,
           cantidad: cant,
@@ -486,14 +513,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         };
       }
 
-      const { error } = await client.from("ventas").insert([payload]);
+      let errorVenta = null;
+      if (idVenta) {
+        const { error } = await client.from("ventas").update(payload).eq("id", idVenta);
+        errorVenta = error;
+      } else {
+        const { error } = await client.from("ventas").insert([payload]);
+        errorVenta = error;
+      }
 
-      if (error) {
-        mostrarToast("Error al guardar venta: " + error.message);
+      if (errorVenta) {
+        mostrarToast("Error al guardar venta: " + errorVenta.message);
         return;
       }
 
-      mostrarToast("¡Venta registrada con éxito!");
+      mostrarToast(idVenta ? "¡Venta actualizada con éxito!" : "¡Venta registrada con éxito!");
       cerrarModalVenta();
       formVenta.reset();
       cargarVentas();
@@ -501,7 +535,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // ---------------------------------------------------------
-  // MÓDULO 3: PROVEEDORES
+  // MÓDULO 3: PROVEEDORES (Registro y Edición con sticker ✏️)
   // ---------------------------------------------------------
   async function cargarProveedores() {
     const tbody = document.getElementById("tbody-proveedores");
@@ -514,24 +548,42 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
-    if (!data || data.length === 0) {
+    listaProveedores = data || [];
+
+    if (listaProveedores.length === 0) {
       tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px; color:#64748b;">No hay proveedores registrados.</td></tr>`;
       return;
     }
 
-    tbody.innerHTML = data.map(p => `
+    tbody.innerHTML = listaProveedores.map(p => `
       <tr>
         <td><strong>${p.nombre}</strong></td>
         <td>${p.contacto || "-"}</td>
         <td>${p.telefono || "-"}</td>
         <td>${p.correo || "-"}</td>
         <td><span class="status-pill activo">${p.estado || "Activo"}</span></td>
-        <td>
-          <button type="button" class="btn-table-del" onclick="eliminarProveedor('${p.id}')">🗑️ Eliminar</button>
+        <td style="text-align:center; white-space:nowrap;">
+          <button type="button" class="btn-card-icon" onclick="editarProveedor('${p.id}')" title="Editar proveedor" style="padding:4px 8px; font-size:13px; margin-right:4px;">✏️</button>
+          <button type="button" class="btn-table-del" onclick="eliminarProveedor('${p.id}')" title="Eliminar proveedor">🗑️</button>
         </td>
       </tr>
     `).join("");
   }
+
+  window.editarProveedor = function(id) {
+    const prov = listaProveedores.find(p => String(p.id) === String(id));
+    if (!prov) return;
+
+    document.getElementById("modal-prov-title").textContent = "Editar Proveedor";
+    document.getElementById("prov-id").value = prov.id;
+    document.getElementById("prov-nombre").value = prov.nombre || "";
+    document.getElementById("prov-contacto").value = prov.contacto || "";
+    document.getElementById("prov-telefono").value = prov.telefono || "";
+    document.getElementById("prov-correo").value = prov.correo || "";
+    document.getElementById("prov-direccion").value = prov.direccion || "";
+
+    modalProv.classList.add("active");
+  };
 
   window.eliminarProveedor = async function(id) {
     if (!confirm("¿Deseas eliminar este proveedor?")) return;
@@ -549,7 +601,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   const formProv = document.getElementById("form-proveedor");
 
   if (btnNuevoProv) {
-    btnNuevoProv.addEventListener("click", () => modalProv.classList.add("active"));
+    btnNuevoProv.addEventListener("click", () => {
+      document.getElementById("modal-prov-title").textContent = "Nuevo Proveedor";
+      document.getElementById("prov-id").value = "";
+      formProv.reset();
+      modalProv.classList.add("active");
+    });
   }
 
   window.cerrarModalProveedor = function() {
@@ -559,6 +616,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (formProv) {
     formProv.addEventListener("submit", async (e) => {
       e.preventDefault();
+      const idProv = document.getElementById("prov-id").value;
       const payload = {
         nombre: document.getElementById("prov-nombre").value.trim(),
         contacto: document.getElementById("prov-contacto").value.trim(),
@@ -568,13 +626,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         estado: "Activo"
       };
 
-      const { error } = await client.from("proveedores").insert([payload]);
-      if (error) {
-        mostrarToast("Error: " + error.message);
+      let errorProv = null;
+      if (idProv) {
+        const { error } = await client.from("proveedores").update(payload).eq("id", idProv);
+        errorProv = error;
+      } else {
+        const { error } = await client.from("proveedores").insert([payload]);
+        errorProv = error;
+      }
+
+      if (errorProv) {
+        mostrarToast("Error: " + errorProv.message);
         return;
       }
 
-      mostrarToast("Proveedor guardado correctamente");
+      mostrarToast(idProv ? "Proveedor actualizado correctamente" : "Proveedor guardado correctamente");
       cerrarModalProveedor();
       formProv.reset();
       cargarProveedores();
@@ -582,7 +648,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // ---------------------------------------------------------
-  // MÓDULO 4: CLIENTES (Lectura directa de 'clientes')
+  // MÓDULO 4: CLIENTES
   // ---------------------------------------------------------
   async function cargarClientes() {
     const tbody = document.getElementById("tbody-clientes");
@@ -619,6 +685,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }).join("");
   }
 
-  // Cargar catálogo inicial
+  // Cargar inventario inicial
   cargarInventario();
 });
