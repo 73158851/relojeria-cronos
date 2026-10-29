@@ -62,12 +62,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     btnToggleSidebar.addEventListener("click", toggleSidebarMovil);
   }
 
-  // Tocar en el fondo oscuro cierra la barra
   if (overlay) {
     overlay.addEventListener("click", cerrarSidebarMovil);
   }
 
-  // Tocar fuera del sidebar en cualquier parte de la pantalla cierra la barra
   document.addEventListener("click", (e) => {
     if (sidebar && sidebar.classList.contains("open-mobile")) {
       if (!sidebar.contains(e.target) && e.target !== btnToggleSidebar) {
@@ -562,7 +560,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // ---------------------------------------------------------
-  // MÓDULO 3: PROVEEDORES
+  // MÓDULO 3: PROVEEDORES (SIN COLUMNA ESTADO)
   // ---------------------------------------------------------
   async function cargarProveedores() {
     const tbody = document.getElementById("tbody-proveedores");
@@ -588,7 +586,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         <td>${p.contacto || "-"}</td>
         <td>${p.telefono || "-"}</td>
         <td>${p.correo || "-"}</td>
-        <td><span class="status-pill activo">${p.estado || "Activo"}</span></td>
+        <td>${p.direccion || "-"}</td>
         <td style="text-align:center; white-space:nowrap;">
           <button type="button" class="btn-card-icon" onclick="editarProveedor('${p.id}')" title="Editar proveedor" style="padding:4px 8px; font-size:13px; margin-right:4px;">✏️</button>
           <button type="button" class="btn-table-del" onclick="eliminarProveedor('${p.id}')" title="Eliminar proveedor">🗑️</button>
@@ -649,8 +647,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         contacto: document.getElementById("prov-contacto").value.trim(),
         telefono: document.getElementById("prov-telefono").value.trim(),
         correo: document.getElementById("prov-correo").value.trim(),
-        direccion: document.getElementById("prov-direccion").value.trim(),
-        estado: "Activo"
+        direccion: document.getElementById("prov-direccion").value.trim()
       };
 
       let errorProv = null;
