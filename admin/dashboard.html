@@ -70,8 +70,8 @@
           <span>Probar Asesor IA</span>
         </a>
 
-        <!-- Botón cerrar sesión accesible en la barra -->
-        <button type="button" id="btn-logout" class="btn-logout-sidebar">
+        <!-- Botón cerrar sesión con llamada directa garantizada -->
+        <button type="button" id="btn-logout" class="btn-logout-sidebar" onclick="cerrarSesionAdmin(event)">
           <span>🚪</span>
           <span>Cerrar sesión</span>
         </button>
@@ -350,7 +350,7 @@
         </div>
       </section>
 
-      <!-- VISTA 4: PROVEEDORES (SIN COLUMNA ESTADO) -->
+      <!-- VISTA 4: PROVEEDORES -->
       <section id="view-proveedores" class="admin-view">
         <div class="view-header">
           <div>

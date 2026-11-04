@@ -74,6 +74,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
+  // Respaldo de listener para logout
+  const btnLogout = document.getElementById("btn-logout");
+  if (btnLogout) {
+    btnLogout.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (typeof window.cerrarSesionAdmin === "function") {
+        window.cerrarSesionAdmin(e);
+      } else {
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.href = "login.html";
+      }
+    });
+  }
+
   let inventario = [];
   let listaVentas = [];
   let listaProveedores = [];
@@ -560,7 +575,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // ---------------------------------------------------------
-  // MÓDULO 3: PROVEEDORES (SIN COLUMNA ESTADO)
+  // MÓDULO 3: PROVEEDORES
   // ---------------------------------------------------------
   async function cargarProveedores() {
     const tbody = document.getElementById("tbody-proveedores");
